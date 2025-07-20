@@ -19,6 +19,7 @@ fun isOwnerOrAdmin(principal: JWTPrincipal?, ownerId: UUID?): Boolean {
     val role = principal?.getRole()
     return userId == ownerId || role == "ADMIN"
 }
+
 fun ApplicationCall.getUserIdFromToken(): UUID {
     val principal = this.principal<JWTPrincipal>()
         ?: throw Exception("Chybí nebo neplatný token")

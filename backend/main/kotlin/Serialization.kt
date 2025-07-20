@@ -21,6 +21,7 @@ object UUIDSerializer : KSerializer<UUID> {
         return UUID.fromString(decoder.decodeString())
     }
 }
+
 object InstantSerializer : KSerializer<java.time.Instant> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("Instant", PrimitiveKind.STRING)

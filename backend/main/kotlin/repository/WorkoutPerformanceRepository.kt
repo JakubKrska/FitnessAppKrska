@@ -30,6 +30,7 @@ class WorkoutPerformanceRepository {
             it[weightUsed] = performance.weightUsed?.toFloat()
         }
     }
+
     fun getAllByExerciseId(exerciseId: UUID): List<WorkoutPerformance> = transaction {
         WorkoutPerformances.select {
             WorkoutPerformances.exerciseId eq exerciseId

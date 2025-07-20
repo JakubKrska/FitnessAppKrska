@@ -45,6 +45,7 @@ class WorkoutExercisesRepository {
     fun deleteWorkoutExercise(id: UUID): Boolean = transaction {
         WorkoutExercises.deleteWhere { WorkoutExercises.id eq id } > 0
     }
+
     fun copyExercisesFromPlanToPlan(sourcePlanId: UUID, targetPlanId: UUID) = transaction {
         val exercises = getAllByPlanId(sourcePlanId)
         exercises.forEach { ex ->

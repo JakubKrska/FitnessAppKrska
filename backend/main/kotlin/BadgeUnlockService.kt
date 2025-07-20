@@ -1,4 +1,3 @@
-
 import models.Badge
 import models.UserBadge
 import repository.BadgeRepository

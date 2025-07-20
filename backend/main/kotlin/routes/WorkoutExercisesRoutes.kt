@@ -85,7 +85,11 @@ fun Route.workoutExercisesRoutes(
                 val existing = repo.getById(id)
                 val plan = existing?.let { workoutPlanRepo.getWorkoutPlanById(it.workoutPlanId) }
 
-                if (existing == null || plan == null || plan.userId == null || !isOwnerOrAdmin(principal, plan.userId)) {
+                if (existing == null || plan == null || plan.userId == null || !isOwnerOrAdmin(
+                        principal,
+                        plan.userId
+                    )
+                ) {
                     call.respond(HttpStatusCode.Forbidden, "You cannot update this exercise")
                     return@put
                 }
@@ -115,7 +119,11 @@ fun Route.workoutExercisesRoutes(
                 val existing = repo.getById(id)
                 val plan = existing?.let { workoutPlanRepo.getWorkoutPlanById(it.workoutPlanId) }
 
-                if (existing == null || plan == null || plan.userId == null || !isOwnerOrAdmin(principal, plan.userId)) {
+                if (existing == null || plan == null || plan.userId == null || !isOwnerOrAdmin(
+                        principal,
+                        plan.userId
+                    )
+                ) {
                     call.respond(HttpStatusCode.Forbidden, "You cannot delete this exercise")
                     return@delete
                 }

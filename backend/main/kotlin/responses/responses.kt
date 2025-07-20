@@ -142,6 +142,7 @@ fun ExerciseComment.toResponse() = ExerciseCommentResponse(
     commentText = commentText,
     createdAt = Instant.parse(createdAt).toIsoString()
 )
+
 @Serializable
 data class WeightEntryResponse(
     @Contextual val id: UUID,
@@ -173,6 +174,7 @@ fun WorkoutPerformance.toResponse() = WorkoutPerformanceResponse(
     repsCompleted = repsCompleted,
     weightUsed = weightUsed
 )
+
 @Serializable
 data class BadgeResponse(
     @Contextual val id: UUID,

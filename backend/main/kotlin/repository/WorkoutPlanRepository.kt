@@ -34,6 +34,7 @@ class WorkoutPlanRepository {
             it[isDefault] = plan.isDefault ?: false
         }
     }
+
     fun getAllVisiblePlansForUser(userId: UUID): List<WorkoutPlan> = transaction {
         WorkoutPlans
             .select { (WorkoutPlans.isDefault eq true) or (WorkoutPlans.userId eq userId) }
@@ -64,6 +65,7 @@ class WorkoutPlanRepository {
         goal = row[WorkoutPlans.goal],
         isDefault = row[WorkoutPlans.isDefault]
     )
+
     fun getWorkoutPlansForUser(userId: UUID): List<WorkoutPlan> = transaction {
         WorkoutPlans.select { WorkoutPlans.userId eq userId }
             .map {
@@ -78,6 +80,7 @@ class WorkoutPlanRepository {
                 )
             }
     }
+
     fun getDefaultPlanByGoal(goal: String): WorkoutPlan? = transaction {
         WorkoutPlans
             .select { (WorkoutPlans.goal eq goal) and (WorkoutPlans.isDefault eq true) }

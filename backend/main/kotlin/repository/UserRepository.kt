@@ -56,7 +56,7 @@ class UserRepository {
     }
 
     fun deleteUser(userId: UUID): Boolean = transaction {
-        Users.deleteWhere{ Users.id eq userId } > 0
+        Users.deleteWhere { Users.id eq userId } > 0
     }
 
     fun findUserByEmail(email: String): User? = transaction {
@@ -80,6 +80,7 @@ class UserRepository {
         createdAt = row[Users.createdAt].toString(),
         updatedAt = row[Users.updatedAt].toString()
     )
+
     fun updateUserGoal(userId: UUID, newGoal: String): Boolean = transaction {
         Users.update({ Users.id eq userId }) {
             it[goal] = newGoal

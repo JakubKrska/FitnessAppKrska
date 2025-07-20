@@ -14,7 +14,6 @@ object JwtConfig {
     private val algorithm = Algorithm.HMAC256(secret)
 
 
-
     fun generateToken(userId: String, role: String): String {
         return JWT.create()
             .withIssuer(issuer)
@@ -29,6 +28,6 @@ object JwtConfig {
         .withIssuer(issuer)
         .withAudience(audience)
         .build()
-    }
+}
 
 

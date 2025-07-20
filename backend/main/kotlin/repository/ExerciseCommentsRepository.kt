@@ -30,6 +30,7 @@ class ExerciseCommentsRepository {
             // createdAt se nastaví automaticky přes defaultExpression
         }
     }
+
     fun updateComment(id: UUID, newText: String): Boolean = transaction {
         ExerciseComments.update({ ExerciseComments.id eq id }) {
             it[commentText] = newText

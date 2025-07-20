@@ -24,7 +24,6 @@ import services.WorkoutPlanService
 import java.util.UUID
 
 
-
 fun Application.configureRouting() {
     val userRepository = UserRepository()
     val exerciseRepository = ExerciseRepository()
@@ -174,10 +173,12 @@ fun Application.configureRouting() {
 
                 val assignedPlan = planService.assignDefaultPlanToUser(userId, goalRequest.goal)
 
-                call.respond(HttpStatusCode.OK, mapOf(
-                    "message" to "Cíl nastaven",
-                    "assignedPlan" to assignedPlan.toResponse()
-                ))
+                call.respond(
+                    HttpStatusCode.OK, mapOf(
+                        "message" to "Cíl nastaven",
+                        "assignedPlan" to assignedPlan.toResponse()
+                    )
+                )
             }
 
 

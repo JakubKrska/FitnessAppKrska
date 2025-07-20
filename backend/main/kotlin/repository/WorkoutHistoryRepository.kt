@@ -45,6 +45,7 @@ class WorkoutHistoryRepository {
         workoutPlanId = row[WorkoutHistory.workoutPlanId],
         completedAt = row[WorkoutHistory.completedAt]
     )
+
     fun getActiveDaysForUser(userId: UUID): Int = transaction {
         WorkoutHistory
             .select { WorkoutHistory.userId eq userId }

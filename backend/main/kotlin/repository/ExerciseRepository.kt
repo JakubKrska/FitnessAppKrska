@@ -63,6 +63,7 @@ class ExerciseRepository {
         difficulty = row[Exercises.difficulty],
         authorId = row[Exercises.authorId]
     )
+
     fun getPublicExercises(): List<Exercise> = transaction {
         Exercises.select { Exercises.authorId.isNull() }
             .map { toExercise(it) }

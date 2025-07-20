@@ -9,6 +9,7 @@ object UserBadges : Table("user_badge") {
     val unlockedAt = timestamp("unlocked_at").defaultExpression(CurrentTimestamp())
 
     override val primaryKey = PrimaryKey(id)
+
     init {
         uniqueIndex(userId, badgeId)
     }
