@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
     ScrollView,
     FlatList,
@@ -12,7 +12,7 @@ import AppTextInput from '../components/ui/AppTextInput';
 import AppTitle from '../components/ui/AppTitle';
 import AppButton from '../components/ui/AppButton';
 import AppCard from '../components/ui/AppCard';
-import { colors, spacing } from '../components/ui/theme';
+import {colors, spacing} from '../components/ui/theme';
 
 const WorkoutPlansScreen = () => {
     const [plans, setPlans] = useState([]);
@@ -31,7 +31,7 @@ const WorkoutPlansScreen = () => {
         try {
             const token = await AsyncStorage.getItem('token');
             const res = await fetch('http://localhost:8081/workout-plans', {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: {Authorization: `Bearer ${token}`}
             });
 
             if (res.ok) {
@@ -46,11 +46,11 @@ const WorkoutPlansScreen = () => {
     };
 
     const handleChange = (name, value) => {
-        setNewPlan((prev) => ({ ...prev, [name]: value }));
+        setNewPlan((prev) => ({...prev, [name]: value}));
     };
 
     const handleSubmit = async () => {
-        const { name, goal, experienceLevel } = newPlan;
+        const {name, goal, experienceLevel} = newPlan;
         if (!name || !goal || !experienceLevel) {
             Alert.alert('Chyba', 'Vyplň prosím všechna povinná pole.');
             return;
@@ -69,7 +69,7 @@ const WorkoutPlansScreen = () => {
 
             if (res.ok) {
                 Alert.alert('Úspěch', 'Plán byl vytvořen');
-                setNewPlan({ name: '', description: '', goal: '', experienceLevel: '' });
+                setNewPlan({name: '', description: '', goal: '', experienceLevel: ''});
                 fetchPlans();
             } else {
                 const errText = await res.text();
@@ -81,7 +81,7 @@ const WorkoutPlansScreen = () => {
         }
     };
 
-    const renderPlan = ({ item }) => (
+    const renderPlan = ({item}) => (
         <AppCard>
             <Text style={styles.planTitle}>{item.name}</Text>
             <Text style={styles.planText}>
@@ -100,10 +100,10 @@ const WorkoutPlansScreen = () => {
                 keyExtractor={(item) => item.id}
                 renderItem={renderPlan}
                 scrollEnabled={false}
-                contentContainerStyle={{ gap: spacing.medium }}
+                contentContainerStyle={{gap: spacing.medium}}
             />
 
-            <AppTitle style={{ marginTop: spacing.xlarge }}>Vytvořit nový plán</AppTitle>
+            <AppTitle style={{marginTop: spacing.xlarge}}>Vytvořit nový plán</AppTitle>
 
             <AppTextInput
                 placeholder="Název plánu"
@@ -127,7 +127,7 @@ const WorkoutPlansScreen = () => {
                 onChangeText={(text) => handleChange('experienceLevel', text)}
             />
 
-            <AppButton title="Vytvořit plán" onPress={handleSubmit} />
+            <AppButton title="Vytvořit plán" onPress={handleSubmit}/>
         </ScrollView>
     );
 };

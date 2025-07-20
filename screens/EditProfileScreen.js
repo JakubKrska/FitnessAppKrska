@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import {
     ScrollView,
     Alert,
@@ -6,15 +6,15 @@ import {
     View,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Picker } from "@react-native-picker/picker";
+import {Picker} from "@react-native-picker/picker";
 
 import AppTitle from "../components/ui/AppTitle";
 import AppTextInput from "../components/ui/AppTextInput";
 import AppButton from "../components/ui/AppButton";
-import { colors, spacing } from "../components/ui/theme";
+import {colors, spacing} from "../components/ui/theme";
 
-const EditProfileScreen = ({ route, navigation }) => {
-    const { user, onProfileUpdated } = route.params || {};
+const EditProfileScreen = ({route, navigation}) => {
+    const {user, onProfileUpdated} = route.params || {};
 
     const [formData, setFormData] = useState({
         name: "",
@@ -43,11 +43,11 @@ const EditProfileScreen = ({ route, navigation }) => {
     }, [user]);
 
     const handleChange = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+        setFormData(prev => ({...prev, [field]: value}));
     };
 
     const validate = () => {
-        const { name, age, height, weight } = formData;
+        const {name, age, height, weight} = formData;
         if (!name || !age || !height || !weight) {
             Alert.alert("Chyba", "Vyplň prosím všechna povinná pole.");
             return false;
@@ -74,7 +74,7 @@ const EditProfileScreen = ({ route, navigation }) => {
             const token = await AsyncStorage.getItem("token");
             const payload = {
                 ...formData,
-                ...(formData.plainPassword === "" && { plainPassword: undefined }),
+                ...(formData.plainPassword === "" && {plainPassword: undefined}),
             };
 
             const res = await fetch(`http://localhost:8081/users/${user.id}`, {
@@ -134,50 +134,50 @@ const EditProfileScreen = ({ route, navigation }) => {
                 onChangeText={(val) => handleChange("weight", val)}
             />
 
-            <TextLabel label="Pohlaví" />
+            <TextLabel label="Pohlaví"/>
             <Picker
                 selectedValue={formData.gender}
                 onValueChange={(val) => handleChange("gender", val)}
                 style={styles.picker}
             >
-                <Picker.Item label="Vyber..." value="" />
-                <Picker.Item label="Muž" value="male" />
-                <Picker.Item label="Žena" value="female" />
-                <Picker.Item label="Jiné" value="other" />
+                <Picker.Item label="Vyber..." value=""/>
+                <Picker.Item label="Muž" value="male"/>
+                <Picker.Item label="Žena" value="female"/>
+                <Picker.Item label="Jiné" value="other"/>
             </Picker>
 
-            <TextLabel label="Cíl" />
+            <TextLabel label="Cíl"/>
             <Picker
                 selectedValue={formData.goal}
                 onValueChange={(val) => handleChange("goal", val)}
                 style={styles.picker}
             >
-                <Picker.Item label="Vyber..." value="" />
-                <Picker.Item label="Hubnutí" value="Hubnutí" />
-                <Picker.Item label="Zůstat fit" value="Zůstat fit" />
-                <Picker.Item label="Nabrat svaly" value="Nabrat svaly" />
+                <Picker.Item label="Vyber..." value=""/>
+                <Picker.Item label="Hubnutí" value="Hubnutí"/>
+                <Picker.Item label="Zůstat fit" value="Zůstat fit"/>
+                <Picker.Item label="Nabrat svaly" value="Nabrat svaly"/>
             </Picker>
 
-            <TextLabel label="Zkušenosti" />
+            <TextLabel label="Zkušenosti"/>
             <Picker
                 selectedValue={formData.experienceLevel}
                 onValueChange={(val) => handleChange("experienceLevel", val)}
                 style={styles.picker}
             >
-                <Picker.Item label="Vyber..." value="" />
-                <Picker.Item label="Začátečník" value="Začátečník" />
-                <Picker.Item label="Pokročilý" value="Pokročilý" />
-                <Picker.Item label="Expert" value="Expert" />
+                <Picker.Item label="Vyber..." value=""/>
+                <Picker.Item label="Začátečník" value="Začátečník"/>
+                <Picker.Item label="Pokročilý" value="Pokročilý"/>
+                <Picker.Item label="Expert" value="Expert"/>
             </Picker>
 
-            <AppButton title="Uložit změny" onPress={handleSubmit} />
+            <AppButton title="Uložit změny" onPress={handleSubmit}/>
         </ScrollView>
     );
 };
 
-const TextLabel = ({ label }) => (
-    <View style={{ marginTop: spacing.medium, marginBottom: spacing.small }}>
-        <AppTitle style={{ fontSize: 16 }}>{label}</AppTitle>
+const TextLabel = ({label}) => (
+    <View style={{marginTop: spacing.medium, marginBottom: spacing.small}}>
+        <AppTitle style={{fontSize: 16}}>{label}</AppTitle>
     </View>
 );
 

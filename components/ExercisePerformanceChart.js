@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, Dimensions, StyleSheet, Text } from 'react-native';
-import { LineChart } from 'react-native-chart-kit';
-import { colors, spacing } from './ui/theme';
+import {View, Dimensions, StyleSheet, Text} from 'react-native';
+import {LineChart} from 'react-native-chart-kit';
+import {colors, spacing} from './ui/theme';
 
 const screenWidth = Dimensions.get('window').width;
 
-const ExercisePerformanceChart = ({ dataPoints }) => {
+const ExercisePerformanceChart = ({dataPoints}) => {
     if (dataPoints.length === 0) {
         return <Text style={styles.noData}>Žádná data k zobrazení.</Text>;
     }
@@ -41,7 +41,7 @@ const ExercisePerformanceChart = ({ dataPoints }) => {
                     },
                 }}
                 bezier
-                style={{ borderRadius: 8 }}
+                style={{borderRadius: 8}}
             />
         </View>
     );

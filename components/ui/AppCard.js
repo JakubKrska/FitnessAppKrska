@@ -1,8 +1,8 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
-import { colors, spacing, borderRadius } from "./theme";
+import {View, StyleSheet} from "react-native";
+import {colors, spacing, borderRadius} from "./theme";
 
-const AppCard = ({ children, style }) => (
+const AppCard = ({children, style}) => (
     <View style={[styles.card, style]}>{children}</View>
 );
 

@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Alert, ScrollView } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, StyleSheet, Alert, ScrollView} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import AppCard from '../components/ui/AppCard';
 import AppButton from '../components/ui/AppButton';
 import AppTitle from '../components/ui/AppTitle';
-import { colors, spacing } from '../components/ui/theme';
+import {colors, spacing} from '../components/ui/theme';
 
-const RecommendedPlansScreen = ({ route, navigation }) => {
-    const { goal } = route.params;
+const RecommendedPlansScreen = ({route, navigation}) => {
+    const {goal} = route.params;
     const [plans, setPlans] = useState([]);
 
     const fetchPlans = async () => {
         const token = await AsyncStorage.getItem("token");
 
         const res = await fetch(`http://localhost:8081/workout-plans`, {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: {Authorization: `Bearer ${token}`},
         });
 
         const allPlans = await res.json();
@@ -72,7 +72,7 @@ const RecommendedPlansScreen = ({ route, navigation }) => {
                     <AppCard key={plan.id}>
                         <Text style={styles.name}>{plan.name}</Text>
                         <Text>{plan.description}</Text>
-                        <AppButton title="Vybrat tento plán" onPress={() => selectPlan(plan.id)} />
+                        <AppButton title="Vybrat tento plán" onPress={() => selectPlan(plan.id)}/>
                     </AppCard>
                 ))
             )}

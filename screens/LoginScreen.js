@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {
     View,
     Alert,
@@ -7,14 +7,14 @@ import {
     TouchableOpacity,
     Pressable,
 } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import {useNavigation, useRoute} from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { MaterialIcons } from "@expo/vector-icons";
+import {MaterialIcons} from "@expo/vector-icons";
 
 import AppTextInput from "../components/ui/AppTextInput";
 import AppButton from "../components/ui/AppButton";
 import AppTitle from "../components/ui/AppTitle";
-import { colors, spacing } from "../components/ui/theme";
+import {colors, spacing} from "../components/ui/theme";
 
 const LoginScreen = () => {
     const [email, setEmail] = useState("");
@@ -35,8 +35,8 @@ const LoginScreen = () => {
         try {
             const response = await fetch("http://localhost:8081/authUtils/login", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password }),
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({email, password}),
             });
 
             if (response.ok) {
@@ -56,7 +56,7 @@ const LoginScreen = () => {
 
     return (
         <View style={styles.container}>
-            <MaterialIcons name="fitness-center" size={60} color={colors.primary} style={styles.icon} />
+            <MaterialIcons name="fitness-center" size={60} color={colors.primary} style={styles.icon}/>
             <AppTitle>Přihlášení</AppTitle>
 
             <AppTextInput
@@ -76,7 +76,7 @@ const LoginScreen = () => {
                         setError(null);
                     }}
                     secureTextEntry={!showPassword}
-                    style={{ flex: 1 }}
+                    style={{flex: 1}}
                 />
                 <Pressable onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
                     <MaterialIcons
@@ -88,7 +88,7 @@ const LoginScreen = () => {
             </View>
             {error && <Text style={styles.error}>{error}</Text>}
 
-            <AppButton title="Přihlásit se" onPress={handleLogin} />
+            <AppButton title="Přihlásit se" onPress={handleLogin}/>
 
             <TouchableOpacity onPress={() => navigation.navigate("Register")}>
                 <Text style={styles.link}>Nemáš účet? Zaregistruj se</Text>

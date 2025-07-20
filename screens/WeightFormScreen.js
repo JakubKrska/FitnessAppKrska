@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import React, {useState} from 'react';
+import {View, StyleSheet, Alert} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import AppTextInput from '../components/ui/AppTextInput';
 import AppButton from '../components/ui/AppButton';
 import AppTitle from '../components/ui/AppTitle';
-import { colors, spacing } from '../components/ui/theme';
+import {colors, spacing} from '../components/ui/theme';
 
-const WeightFormScreen = ({ navigation }) => {
+const WeightFormScreen = ({navigation}) => {
     const [weight, setWeight] = useState('');
     const [error, setError] = useState(null);
 
@@ -25,7 +25,7 @@ const WeightFormScreen = ({ navigation }) => {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({ weight: parseFloat(weight) }),
+                body: JSON.stringify({weight: parseFloat(weight)}),
             });
 
             if (res.ok) {
@@ -57,7 +57,7 @@ const WeightFormScreen = ({ navigation }) => {
             />
             {error && <View><Text style={styles.error}>{error}</Text></View>}
 
-            <AppButton title="Přidat" onPress={handleSubmit} />
+            <AppButton title="Přidat" onPress={handleSubmit}/>
         </View>
     );
 };

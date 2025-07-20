@@ -1,8 +1,8 @@
 import React from "react";
-import { Text, StyleSheet } from "react-native";
-import { colors, spacing } from "./theme";
+import {Text, StyleSheet} from "react-native";
+import {colors, spacing} from "./theme";
 
-const AppTitle = ({ children, style }) => (
+const AppTitle = ({children, style}) => (
     <Text style={[styles.title, style]}>{children}</Text>
 );
 

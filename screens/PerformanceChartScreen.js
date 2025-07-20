@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     View,
     StyleSheet,
@@ -11,10 +11,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import AppTitle from '../components/ui/AppTitle';
 import ExercisePerformanceChart from '../components/ExercisePerformanceChart';
-import { colors, spacing } from '../components/ui/theme';
+import {colors, spacing} from '../components/ui/theme';
 
-const PerformanceChartScreen = ({ route }) => {
-    const { exerciseId, exerciseName } = route.params;
+const PerformanceChartScreen = ({route}) => {
+    const {exerciseId, exerciseName} = route.params;
     const [dataPoints, setDataPoints] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -60,9 +60,9 @@ const PerformanceChartScreen = ({ route }) => {
             <Text style={styles.subtitle}>{exerciseName}</Text>
 
             {loading ? (
-                <ActivityIndicator size="large" color={colors.primary} />
+                <ActivityIndicator size="large" color={colors.primary}/>
             ) : (
-                <ExercisePerformanceChart dataPoints={dataPoints} />
+                <ExercisePerformanceChart dataPoints={dataPoints}/>
             )}
         </ScrollView>
     );

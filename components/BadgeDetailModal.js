@@ -1,8 +1,8 @@
 import React from 'react';
-import { Modal, View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { colors, spacing } from './ui/theme';
+import {Modal, View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import {colors, spacing} from './ui/theme';
 
-const BadgeDetailModal = ({ visible, onClose, badge }) => {
+const BadgeDetailModal = ({visible, onClose, badge}) => {
     if (!badge) return null;
 
     return (
@@ -10,7 +10,7 @@ const BadgeDetailModal = ({ visible, onClose, badge }) => {
             <View style={styles.overlay}>
                 <View style={styles.container}>
                     {badge.icon ? (
-                        <Image source={{ uri: badge.icon }} style={styles.icon} />
+                        <Image source={{uri: badge.icon}} style={styles.icon}/>
                     ) : (
                         <Text style={styles.iconPlaceholder}>🏆</Text>
                     )}

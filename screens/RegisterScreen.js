@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {
     View,
     Alert,
@@ -7,13 +7,13 @@ import {
     TouchableOpacity,
     Pressable,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { MaterialIcons } from "@expo/vector-icons";
+import {useNavigation} from "@react-navigation/native";
+import {MaterialIcons} from "@expo/vector-icons";
 
 import AppTextInput from "../components/ui/AppTextInput";
 import AppButton from "../components/ui/AppButton";
 import AppTitle from "../components/ui/AppTitle";
-import { colors, spacing } from "../components/ui/theme";
+import {colors, spacing} from "../components/ui/theme";
 
 const RegisterScreen = () => {
     const [name, setName] = useState("");
@@ -33,8 +33,8 @@ const RegisterScreen = () => {
         try {
             const res = await fetch("http://localhost:8081/authUtils/register", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, email, password }),
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({name, email, password}),
             });
 
             if (!res.ok) {
@@ -52,7 +52,7 @@ const RegisterScreen = () => {
 
     return (
         <View style={styles.container}>
-            <MaterialIcons name="person-add" size={60} color={colors.primary} style={styles.icon} />
+            <MaterialIcons name="person-add" size={60} color={colors.primary} style={styles.icon}/>
             <AppTitle>Registrace</AppTitle>
 
             <AppTextInput
@@ -80,7 +80,7 @@ const RegisterScreen = () => {
                         setError(null);
                     }}
                     secureTextEntry={!showPassword}
-                    style={{ flex: 1 }}
+                    style={{flex: 1}}
                 />
                 <Pressable onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
                     <MaterialIcons
@@ -92,7 +92,7 @@ const RegisterScreen = () => {
             </View>
             {error && <Text style={styles.error}>{error}</Text>}
 
-            <AppButton title="Registrovat" onPress={handleRegister} />
+            <AppButton title="Registrovat" onPress={handleRegister}/>
 
             <TouchableOpacity onPress={() => navigation.navigate("Login")}>
                 <Text style={styles.link}>Už máš účet? Přihlaš se</Text>

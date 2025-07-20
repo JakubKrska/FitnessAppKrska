@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import {
     View,
     ScrollView,
@@ -7,18 +7,18 @@ import {
     Text,
     Alert
 } from "react-native";
-import { useRoute, useNavigation } from "@react-navigation/native";
+import {useRoute, useNavigation} from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import AppTitle from "../components/ui/AppTitle";
 import AppCard from "../components/ui/AppCard";
 import AppButton from "../components/ui/AppButton";
-import { colors, spacing } from "../components/ui/theme";
+import {colors, spacing} from "../components/ui/theme";
 
 const WorkoutHistoryDetailScreen = () => {
     const route = useRoute();
     const navigation = useNavigation();
-    const { historyId, completedAt, planName, planId } = route.params;
+    const {historyId, completedAt, planName, planId} = route.params;
 
     const [performances, setPerformances] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -72,7 +72,7 @@ const WorkoutHistoryDetailScreen = () => {
             return;
         }
 
-        navigation.navigate("WorkoutSession", { planId });
+        navigation.navigate("WorkoutSession", {planId});
     };
 
     return (
@@ -83,14 +83,14 @@ const WorkoutHistoryDetailScreen = () => {
                 <Text style={styles.label}>Datum dokončení</Text>
                 <Text style={styles.text}>{new Date(completedAt).toLocaleString("cs-CZ")}</Text>
 
-                <Text style={[styles.label, { marginTop: spacing.medium }]}>Název plánu</Text>
+                <Text style={[styles.label, {marginTop: spacing.medium}]}>Název plánu</Text>
                 <Text style={styles.text}>{planName || "Neznámý plán"}</Text>
             </AppCard>
 
-            <AppTitle style={{ marginTop: spacing.large }}>Výkony</AppTitle>
+            <AppTitle style={{marginTop: spacing.large}}>Výkony</AppTitle>
 
             {loading ? (
-                <ActivityIndicator size="large" color={colors.primary} />
+                <ActivityIndicator size="large" color={colors.primary}/>
             ) : performances.length === 0 ? (
                 <Text style={styles.empty}>Žádné výkony nejsou zaznamenány.</Text>
             ) : (
@@ -109,7 +109,7 @@ const WorkoutHistoryDetailScreen = () => {
             <AppButton
                 title="Opakovat trénink"
                 onPress={handleRepeat}
-                style={{ marginTop: spacing.large }}
+                style={{marginTop: spacing.large}}
             />
         </ScrollView>
     );

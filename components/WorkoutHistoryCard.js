@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius } from './ui/theme';
+import {View, Text, StyleSheet} from 'react-native';
+import {colors, spacing, borderRadius} from './ui/theme';
 
-const WorkoutHistoryCard = ({ date, planName }) => (
+const WorkoutHistoryCard = ({date, planName}) => (
     <View style={styles.card}>
         <Text style={styles.date}>{date}</Text>
         <Text style={styles.plan}>{planName}</Text>

@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { View, Dimensions, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Dimensions, ScrollView, StyleSheet, ActivityIndicator} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LineChart } from 'react-native-chart-kit';
+import {LineChart} from 'react-native-chart-kit';
 
 import AppTitle from '../components/ui/AppTitle';
-import { colors, spacing } from '../components/ui/theme';
+import {colors, spacing} from '../components/ui/theme';
 
 const WeightChartScreen = () => {
     const [data, setData] = useState([]);
@@ -15,7 +15,7 @@ const WeightChartScreen = () => {
             try {
                 const token = await AsyncStorage.getItem('token');
                 const res = await fetch('http://localhost:8081/weight', {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: {Authorization: `Bearer ${token}`},
                 });
 
                 const text = await res.text();
@@ -39,7 +39,7 @@ const WeightChartScreen = () => {
     if (loading) {
         return (
             <View style={styles.center}>
-                <ActivityIndicator size="large" color={colors.primary} />
+                <ActivityIndicator size="large" color={colors.primary}/>
             </View>
         );
     }

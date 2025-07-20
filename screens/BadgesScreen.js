@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, StyleSheet, Image } from "react-native";
+import React, {useEffect, useState} from "react";
+import {View, Text, FlatList, StyleSheet, Image} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const BadgesScreen = () => {
@@ -11,7 +11,7 @@ const BadgesScreen = () => {
             if (!token) return;
 
             const res = await fetch("http://localhost:8081/users/me/badges", {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: {Authorization: `Bearer ${token}`},
             });
 
             const data = await res.json();
@@ -21,10 +21,10 @@ const BadgesScreen = () => {
         fetchBadges();
     }, []);
 
-    const renderBadge = ({ item }) => (
+    const renderBadge = ({item}) => (
         <View style={styles.card}>
             {item.icon && (
-                <Image source={{ uri: item.icon }} style={styles.icon} />
+                <Image source={{uri: item.icon}} style={styles.icon}/>
             )}
             <View style={styles.textContainer}>
                 <Text style={styles.name}>{item.name}</Text>

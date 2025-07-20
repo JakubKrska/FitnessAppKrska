@@ -1,18 +1,18 @@
 // screens/WelcomeScreen.js
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import {View, Text, StyleSheet} from "react-native";
 import AppButton from "../components/ui/AppButton";
-import { colors, spacing } from "../components/ui/theme";
+import {colors, spacing} from "../components/ui/theme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const WelcomeScreen = ({ navigation }) => {
+const WelcomeScreen = ({navigation}) => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Vítej ve FitnessApp</Text>
             <Text style={styles.subtitle}>Sleduj pokroky, plánuj tréninky, motivuj se.</Text>
 
-            <AppButton title="Přihlásit se" onPress={() => navigation.navigate("Login")} />
-            <AppButton title="Registrace" onPress={() => navigation.navigate("Register")} />
+            <AppButton title="Přihlásit se" onPress={() => navigation.navigate("Login")}/>
+            <AppButton title="Registrace" onPress={() => navigation.navigate("Register")}/>
         </View>
     );
 };

@@ -1,5 +1,5 @@
 // screens/WorkoutHistoryScreen.js
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     View,
     ScrollView,
@@ -9,12 +9,12 @@ import {
     Alert
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {TouchableOpacity} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 
 import WorkoutHistoryCard from '../components/WorkoutHistoryCard';
 import AppTitle from '../components/ui/AppTitle';
-import { colors, spacing } from '../components/ui/theme';
+import {colors, spacing} from '../components/ui/theme';
 
 const WorkoutHistoryScreen = () => {
     const [history, setHistory] = useState([]);
@@ -52,7 +52,7 @@ const WorkoutHistoryScreen = () => {
             <AppTitle>Historie cvičení</AppTitle>
 
             {loading ? (
-                <ActivityIndicator size="large" color={colors.primary} />
+                <ActivityIndicator size="large" color={colors.primary}/>
             ) : history.length === 0 ? (
                 <Text style={styles.empty}>Zatím nemáš žádné dokončené tréninky.</Text>
             ) : (

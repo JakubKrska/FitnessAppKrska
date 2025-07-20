@@ -1,7 +1,7 @@
 // components/AppTextInput.js
 import React from 'react';
-import { TextInput, StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius } from './theme';
+import {TextInput, StyleSheet} from 'react-native';
+import {colors, spacing, borderRadius} from './theme';
 
 const AppTextInput = (props) => (
     <TextInput

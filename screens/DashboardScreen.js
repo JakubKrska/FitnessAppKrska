@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, {useState, useCallback} from "react";
 import {
     ScrollView,
     Text,
@@ -7,9 +7,9 @@ import {
     View,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import {useNavigation, useFocusEffect} from "@react-navigation/native";
 
-import { colors, spacing } from "../components/ui/theme";
+import {colors, spacing} from "../components/ui/theme";
 import AppButton from "../components/ui/AppButton";
 import AppCard from "../components/ui/AppCard";
 import AppTitle from "../components/ui/AppTitle";
@@ -32,7 +32,7 @@ const DashboardScreen = () => {
 
         try {
             const res = await fetch("http://localhost:8081/users/me", {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: {Authorization: `Bearer ${token}`},
             });
             if (res.ok) {
                 const data = await res.json();
@@ -53,7 +53,7 @@ const DashboardScreen = () => {
         const token = await AsyncStorage.getItem("token");
         try {
             const res = await fetch("http://localhost:8081/workout-history", {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: {Authorization: `Bearer ${token}`},
             });
             if (res.ok) setWorkoutHistory(await res.json());
         } catch (e) {
@@ -66,7 +66,7 @@ const DashboardScreen = () => {
         const userId = await AsyncStorage.getItem("userId");
         try {
             const res = await fetch("http://localhost:8081/workout-plans", {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: {Authorization: `Bearer ${token}`},
             });
             if (res.ok) {
                 const data = await res.json();
@@ -94,7 +94,7 @@ const DashboardScreen = () => {
     if (loading) {
         return (
             <View style={styles.loaderContainer}>
-                <ActivityIndicator size="large" color={colors.primary} />
+                <ActivityIndicator size="large" color={colors.primary}/>
             </View>
         );
     }
@@ -116,9 +116,9 @@ const DashboardScreen = () => {
             )}
 
             <AppTitle>Rychlé akce</AppTitle>
-            <AppButton title="Upravit profil" onPress={() => navigation.navigate("EditProfile")} />
-            <AppButton title="Vývoj váhy" onPress={() => navigation.navigate("WeightChart")} />
-            <AppButton title="Zaznamenat váhu" onPress={() => navigation.navigate("WeightForm")} />
+            <AppButton title="Upravit profil" onPress={() => navigation.navigate("EditProfile")}/>
+            <AppButton title="Vývoj váhy" onPress={() => navigation.navigate("WeightChart")}/>
+            <AppButton title="Zaznamenat váhu" onPress={() => navigation.navigate("WeightForm")}/>
 
             <AppTitle>Tréninkové plány</AppTitle>
             {userPlans.length === 0 ? (
@@ -131,7 +131,7 @@ const DashboardScreen = () => {
                         goal={plan.goal}
                         level={plan.experienceLevel}
                         onPress={() =>
-                            navigation.navigate("WorkoutSession", { planId: plan.id })
+                            navigation.navigate("WorkoutSession", {planId: plan.id})
                         }
                     />
                 ))
@@ -142,11 +142,11 @@ const DashboardScreen = () => {
                 <Text>Žádné záznamy</Text>
             ) : (
                 workoutHistory.map(entry => (
-                    <WorkoutHistoryCard key={entry.id} entry={entry} />
+                    <WorkoutHistoryCard key={entry.id} entry={entry}/>
                 ))
             )}
 
-            <AppButton title="Odhlásit se" onPress={logout} color={colors.danger} />
+            <AppButton title="Odhlásit se" onPress={logout} color={colors.danger}/>
         </ScrollView>
     );
 };

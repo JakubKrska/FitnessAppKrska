@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React, {useEffect, useState} from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message'; // 👈 přidáno
 
@@ -28,7 +28,7 @@ export default function App() {
             if (token) {
                 try {
                     const res = await fetch("http://localhost:8081/users/me", {
-                        headers: { Authorization: `Bearer ${token}` },
+                        headers: {Authorization: `Bearer ${token}`},
                     });
                     const user = await res.json();
                     if (!user.goal || user.goal === "") {
@@ -47,24 +47,24 @@ export default function App() {
     return (
         <>
             <NavigationContainer>
-                <Stack.Navigator screenOptions={{ headerShown: false }}>
+                <Stack.Navigator screenOptions={{headerShown: false}}>
                     {!hasSeenWelcome ? (
-                        <Stack.Screen name="Welcome" component={WelcomeScreen} />
+                        <Stack.Screen name="Welcome" component={WelcomeScreen}/>
                     ) : isLoggedIn ? (
                         needsGoalSetup ? (
-                            <Stack.Screen name="OnboardingGoal" component={OnboardingGoalScreen} />
+                            <Stack.Screen name="OnboardingGoal" component={OnboardingGoalScreen}/>
                         ) : (
-                            <Stack.Screen name="MainApp" component={BottomTabNavigator} />
+                            <Stack.Screen name="MainApp" component={BottomTabNavigator}/>
                         )
                     ) : (
                         <>
-                            <Stack.Screen name="Login" component={LoginScreen} />
-                            <Stack.Screen name="Register" component={RegisterScreen} />
+                            <Stack.Screen name="Login" component={LoginScreen}/>
+                            <Stack.Screen name="Register" component={RegisterScreen}/>
                         </>
                     )}
                 </Stack.Navigator>
             </NavigationContainer>
-            <Toast /> {/* 👈 přidáno sem */}
+            <Toast/> {/* 👈 přidáno sem */}
         </>
     );
 }

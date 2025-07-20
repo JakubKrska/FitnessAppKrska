@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Share, ScrollView, Alert } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, StyleSheet, Share, ScrollView, Alert} from 'react-native';
 import AppButton from '../components/ui/AppButton';
 import AppTitle from '../components/ui/AppTitle';
-import { colors, spacing } from '../components/ui/theme';
+import {colors, spacing} from '../components/ui/theme';
 import Toast from 'react-native-toast-message';
 import BadgeDetailModal from '../components/BadgeDetailModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const WorkoutSummaryScreen = ({ route, navigation }) => {
-    const { completedAt, planName, exercisesCompleted, totalSets, totalReps } = route.params;
+const WorkoutSummaryScreen = ({route, navigation}) => {
+    const {completedAt, planName, exercisesCompleted, totalSets, totalReps} = route.params;
 
     const [unlockedBadges, setUnlockedBadges] = useState([]);
     const [selectedBadge, setSelectedBadge] = useState(null);
@@ -58,7 +58,7 @@ const WorkoutSummaryScreen = ({ route, navigation }) => {
     const handleShare = async () => {
         try {
             const message = `Právě jsi dokončil(a) trénink "${planName}"!\n📅 ${new Date(completedAt).toLocaleString('cs-CZ')}\n🔥 Cviky: ${exercisesCompleted} | Série: ${totalSets} | Opakování: ${totalReps}`;
-            await Share.share({ message });
+            await Share.share({message});
         } catch (error) {
             Alert.alert("Chyba", "Sdílení selhalo: " + error.message);
         }
@@ -75,7 +75,7 @@ const WorkoutSummaryScreen = ({ route, navigation }) => {
 
             <View style={styles.shareSection}>
                 <Text style={styles.shareTitle}>📤 Sdílej svůj výkon s ostatními</Text>
-                <AppButton title="Sdílet výsledek" onPress={handleShare} />
+                <AppButton title="Sdílet výsledek" onPress={handleShare}/>
             </View>
 
             <AppButton

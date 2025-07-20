@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { colors, spacing, borderRadius } from './ui/theme';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {colors, spacing, borderRadius} from './ui/theme';
 
-const WorkoutCard = ({ planName, completedAt, onPress }) => {
+const WorkoutCard = ({planName, completedAt, onPress}) => {
     const date = new Date(completedAt).toLocaleDateString();
 
     return (

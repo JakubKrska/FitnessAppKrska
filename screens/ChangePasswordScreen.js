@@ -1,12 +1,12 @@
 // screens/ChangePasswordScreen.js
-import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, Alert } from 'react-native';
+import React, {useState} from 'react';
+import {View, TextInput, StyleSheet, Alert} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppButton from '../components/ui/AppButton';
 import AppTitle from '../components/ui/AppTitle';
-import { spacing, colors } from '../components/ui/theme';
+import {spacing, colors} from '../components/ui/theme';
 
-const ChangePasswordScreen = ({ navigation }) => {
+const ChangePasswordScreen = ({navigation}) => {
     const [form, setForm] = useState({
         oldPassword: '',
         newPassword: '',
@@ -42,17 +42,17 @@ const ChangePasswordScreen = ({ navigation }) => {
                 placeholder="Původní heslo"
                 style={styles.input}
                 value={form.oldPassword}
-                onChangeText={(text) => setForm({ ...form, oldPassword: text })}
+                onChangeText={(text) => setForm({...form, oldPassword: text})}
             />
             <TextInput
                 secureTextEntry
                 placeholder="Nové heslo"
                 style={styles.input}
                 value={form.newPassword}
-                onChangeText={(text) => setForm({ ...form, newPassword: text })}
+                onChangeText={(text) => setForm({...form, newPassword: text})}
             />
 
-            <AppButton title="Změnit heslo" onPress={handleChange} />
+            <AppButton title="Změnit heslo" onPress={handleChange}/>
         </View>
     );
 };

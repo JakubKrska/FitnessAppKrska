@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     ScrollView,
     Image,
@@ -7,18 +7,18 @@ import {
     View,
     Text,
 } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import {useRoute, useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import AppTitle from '../components/ui/AppTitle';
 import AppCard from '../components/ui/AppCard';
 import AppButton from '../components/ui/AppButton';
-import { colors, spacing } from '../components/ui/theme';
+import {colors, spacing} from '../components/ui/theme';
 
 const ExerciseDetailsScreen = () => {
     const route = useRoute();
     const navigation = useNavigation();
-    const { id } = route.params;
+    const {id} = route.params;
 
     const [exercise, setExercise] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -58,7 +58,7 @@ const ExerciseDetailsScreen = () => {
             try {
                 const token = await AsyncStorage.getItem("token");
                 const res = await fetch("http://localhost:8081/favorites", {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: {Authorization: `Bearer ${token}`}
                 });
                 const data = await res.json();
                 const exists = data.some(fav => fav.exerciseId === id);
@@ -79,7 +79,7 @@ const ExerciseDetailsScreen = () => {
 
             if (isFavorite) {
                 const res = await fetch("http://localhost:8081/favorites", {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: {Authorization: `Bearer ${token}`}
                 });
                 const allFavs = await res.json();
                 const entry = allFavs.find(fav => fav.exerciseId === id);
@@ -87,7 +87,7 @@ const ExerciseDetailsScreen = () => {
                 if (entry) {
                     await fetch(`http://localhost:8081/favorites/${entry.id}`, {
                         method: "DELETE",
-                        headers: { Authorization: `Bearer ${token}` }
+                        headers: {Authorization: `Bearer ${token}`}
                     });
                 }
             } else {
@@ -97,7 +97,7 @@ const ExerciseDetailsScreen = () => {
                         Authorization: `Bearer ${token}`,
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({ exerciseId: id })
+                    body: JSON.stringify({exerciseId: id})
                 });
             }
 
@@ -112,7 +112,7 @@ const ExerciseDetailsScreen = () => {
     if (loading) {
         return (
             <View style={styles.center}>
-                <ActivityIndicator size="large" color={colors.primary} />
+                <ActivityIndicator size="large" color={colors.primary}/>
             </View>
         );
     }
@@ -120,7 +120,7 @@ const ExerciseDetailsScreen = () => {
     if (!exercise) {
         return (
             <View style={styles.center}>
-                <Text style={{ color: colors.text }}>Cvik nenalezen.</Text>
+                <Text style={{color: colors.text}}>Cvik nenalezen.</Text>
             </View>
         );
     }
@@ -130,18 +130,18 @@ const ExerciseDetailsScreen = () => {
             <AppTitle>{exercise.name}</AppTitle>
 
             <AppCard>
-                <Label title="Svalová skupina" value={exercise.muscleGroup} />
-                <Label title="Obtížnost" value={exercise.difficulty} />
+                <Label title="Svalová skupina" value={exercise.muscleGroup}/>
+                <Label title="Obtížnost" value={exercise.difficulty}/>
                 {exercise.aliases?.length > 0 && (
-                    <Label title="Alternativní názvy" value={exercise.aliases.join(', ')} />
+                    <Label title="Alternativní názvy" value={exercise.aliases.join(', ')}/>
                 )}
                 {exercise.description && (
-                    <Label title="Popis" value={exercise.description} multiline />
+                    <Label title="Popis" value={exercise.description} multiline/>
                 )}
                 {exercise.imageUrl ? (
-                    <Image source={{ uri: exercise.imageUrl }} style={styles.image} />
+                    <Image source={{uri: exercise.imageUrl}} style={styles.image}/>
                 ) : (
-                    <Image source={require("../assets/placeholder.png")} style={styles.image} />
+                    <Image source={require("../assets/placeholder.png")} style={styles.image}/>
                 )}
                 {exercise.authorId && (
                     <Text style={styles.footer}>
@@ -151,10 +151,10 @@ const ExerciseDetailsScreen = () => {
                 )}
 
                 {canEdit && (
-                    <View style={{ marginTop: spacing.medium }}>
+                    <View style={{marginTop: spacing.medium}}>
                         <AppButton
                             title="Upravit cvik"
-                            onPress={() => navigation.navigate("ExerciseEdit", { exercise })}
+                            onPress={() => navigation.navigate("ExerciseEdit", {exercise})}
                         />
                     </View>
                 )}
@@ -168,23 +168,23 @@ const ExerciseDetailsScreen = () => {
                         exerciseName: exercise.name,
                     })
                 }
-                style={{ marginTop: spacing.large }}
+                style={{marginTop: spacing.large}}
             />
 
             <AppButton
                 title={isFavorite ? "Odebrat z oblíbených" : "Přidat do oblíbených"}
                 onPress={toggleFavorite}
-                style={{ marginTop: spacing.small }}
+                style={{marginTop: spacing.small}}
             />
         </ScrollView>
     );
 };
 
-const Label = ({ title, value, multiline }) => (
-    <View style={{ marginBottom: spacing.small }}>
+const Label = ({title, value, multiline}) => (
+    <View style={{marginBottom: spacing.small}}>
         <Text style={styles.label}>
             <Text style={styles.bold}>{title}: </Text>
-            <Text style={{ lineHeight: multiline ? 20 : 16 }}>{value}</Text>
+            <Text style={{lineHeight: multiline ? 20 : 16}}>{value}</Text>
         </Text>
     </View>
 );

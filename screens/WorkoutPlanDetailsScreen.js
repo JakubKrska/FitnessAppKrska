@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     View,
     Text,
@@ -7,7 +7,7 @@ import {
     ScrollView,
     ActivityIndicator,
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import {Picker} from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 
@@ -15,11 +15,11 @@ import AppTitle from '../components/ui/AppTitle';
 import AppTextInput from '../components/ui/AppTextInput';
 import AppButton from '../components/ui/AppButton';
 import AppCard from '../components/ui/AppCard';
-import { colors, spacing } from '../components/ui/theme';
-import { useNavigation } from '@react-navigation/native';
+import {colors, spacing} from '../components/ui/theme';
+import {useNavigation} from '@react-navigation/native';
 
-const WorkoutPlanDetailsScreen = ({ route }) => {
-    const { planId } = route.params;
+const WorkoutPlanDetailsScreen = ({route}) => {
+    const {planId} = route.params;
     const navigation = useNavigation();
 
     const [token, setToken] = useState('');
@@ -49,13 +49,13 @@ const WorkoutPlanDetailsScreen = ({ route }) => {
         try {
             const [planRes, exRes, availRes] = await Promise.all([
                 fetch(`http://localhost:8081/workout-plans/${planId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: {Authorization: `Bearer ${token}`},
                 }),
                 fetch(`http://localhost:8081/workout-exercises/${planId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: {Authorization: `Bearer ${token}`},
                 }),
                 fetch(`http://localhost:8081/exercises`, {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: {Authorization: `Bearer ${token}`},
                 }),
             ]);
 
@@ -70,7 +70,7 @@ const WorkoutPlanDetailsScreen = ({ route }) => {
     };
 
     const handleAdd = async () => {
-        const { exerciseId, sets, reps, orderIndex, restSeconds } = formData;
+        const {exerciseId, sets, reps, orderIndex, restSeconds} = formData;
         if (!exerciseId) return Alert.alert('Vyberte cvik');
 
         try {
@@ -92,7 +92,7 @@ const WorkoutPlanDetailsScreen = ({ route }) => {
 
             if (res.ok) {
                 await loadData();
-                setFormData({ exerciseId: '', sets: 3, reps: 10, orderIndex: exercises.length + 1, restSeconds: 60 });
+                setFormData({exerciseId: '', sets: 3, reps: 10, orderIndex: exercises.length + 1, restSeconds: 60});
             } else {
                 const msg = await res.text();
                 Alert.alert('Chyba', msg);
@@ -104,13 +104,13 @@ const WorkoutPlanDetailsScreen = ({ route }) => {
 
     const handleDelete = async (id) => {
         Alert.alert('Smazat?', 'Opravdu chceš odebrat tento cvik?', [
-            { text: 'Zrušit', style: 'cancel' },
+            {text: 'Zrušit', style: 'cancel'},
             {
                 text: 'Smazat',
                 onPress: async () => {
                     await fetch(`http://localhost:8081/workout-exercises/${id}`, {
                         method: 'DELETE',
-                        headers: { Authorization: `Bearer ${token}` },
+                        headers: {Authorization: `Bearer ${token}`},
                     });
                     await loadData();
                 },
@@ -123,7 +123,7 @@ const WorkoutPlanDetailsScreen = ({ route }) => {
 
     };
 
-    const renderItem = ({ item, drag }) => {
+    const renderItem = ({item, drag}) => {
         const full = availableExercises.find((e) => e.id === item.exerciseId);
         return (
             <AppCard onLongPress={drag}>
@@ -131,7 +131,7 @@ const WorkoutPlanDetailsScreen = ({ route }) => {
                 <Text>
                     {item.sets}x{item.reps} • {item.restSeconds || 60}s pauza • Pořadí: {item.orderIndex}
                 </Text>
-                <AppButton title="Odebrat" color={colors.danger} onPress={() => handleDelete(item.id)} />
+                <AppButton title="Odebrat" color={colors.danger} onPress={() => handleDelete(item.id)}/>
             </AppCard>
         );
     };
@@ -139,7 +139,7 @@ const WorkoutPlanDetailsScreen = ({ route }) => {
     if (loading) {
         return (
             <View style={styles.loading}>
-                <ActivityIndicator size="large" color={colors.primary} />
+                <ActivityIndicator size="large" color={colors.primary}/>
             </View>
         );
     }
@@ -160,16 +160,16 @@ const WorkoutPlanDetailsScreen = ({ route }) => {
             <AppButton
                 title="Zahájit plán"
                 color={colors.secondary}
-                onPress={() => navigation.navigate('WorkoutSession', { planId })}
+                onPress={() => navigation.navigate('WorkoutSession', {planId})}
             />
 
             <AppTitle>Přidat cvik</AppTitle>
             <View style={styles.pickerWrapper}>
                 <Picker
                     selectedValue={formData.exerciseId}
-                    onValueChange={(val) => setFormData({ ...formData, exerciseId: val })}
+                    onValueChange={(val) => setFormData({...formData, exerciseId: val})}
                 >
-                    <Picker.Item label="-- Vyber cvik --" value="" />
+                    <Picker.Item label="-- Vyber cvik --" value=""/>
                     {availableExercises.map((ex) => (
                         <Picker.Item
                             key={ex.id}
@@ -184,28 +184,28 @@ const WorkoutPlanDetailsScreen = ({ route }) => {
                 placeholder="Série"
                 keyboardType="numeric"
                 value={String(formData.sets)}
-                onChangeText={(val) => setFormData({ ...formData, sets: Number(val) })}
+                onChangeText={(val) => setFormData({...formData, sets: Number(val)})}
             />
             <AppTextInput
                 placeholder="Opakování"
                 keyboardType="numeric"
                 value={String(formData.reps)}
-                onChangeText={(val) => setFormData({ ...formData, reps: Number(val) })}
+                onChangeText={(val) => setFormData({...formData, reps: Number(val)})}
             />
             <AppTextInput
                 placeholder="Pořadí"
                 keyboardType="numeric"
                 value={String(formData.orderIndex)}
-                onChangeText={(val) => setFormData({ ...formData, orderIndex: Number(val) })}
+                onChangeText={(val) => setFormData({...formData, orderIndex: Number(val)})}
             />
             <AppTextInput
                 placeholder="Pauza (v sekundách)"
                 keyboardType="numeric"
                 value={String(formData.restSeconds)}
-                onChangeText={(val) => setFormData({ ...formData, restSeconds: Number(val) })}
+                onChangeText={(val) => setFormData({...formData, restSeconds: Number(val)})}
             />
 
-            <AppButton title="Přidat cvik" onPress={handleAdd} />
+            <AppButton title="Přidat cvik" onPress={handleAdd}/>
 
             <AppTitle>Cviky v plánu</AppTitle>
 
@@ -213,8 +213,8 @@ const WorkoutPlanDetailsScreen = ({ route }) => {
                 data={exercises}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
-                onDragEnd={({ data }) => handleReorder(data)}
-                contentContainerStyle={{ paddingBottom: spacing.large }}
+                onDragEnd={({data}) => handleReorder(data)}
+                contentContainerStyle={{paddingBottom: spacing.large}}
             />
         </ScrollView>
     );
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
         marginBottom: spacing.small,
         color: colors.text,
     },
-    bold: { fontWeight: 'bold' },
+    bold: {fontWeight: 'bold'},
     loading: {
         flex: 1,
         justifyContent: 'center',

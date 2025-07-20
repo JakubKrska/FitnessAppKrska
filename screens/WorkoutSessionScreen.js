@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Image, Alert, StyleSheet } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import React, {useEffect, useState} from "react";
+import {View, Text, Image, Alert, StyleSheet} from "react-native";
+import {useNavigation, useRoute} from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Speech from "expo-speech";
-import { Bar } from "react-native-progress";
+import {Bar} from "react-native-progress";
 import Slider from "@react-native-community/slider";
-import { v4 as uuidv4 } from "uuid";
+import {v4 as uuidv4} from "uuid";
 
 import AppTitle from "../components/ui/AppTitle";
 import AppCard from "../components/ui/AppCard";
 import AppButton from "../components/ui/AppButton";
-import { colors, spacing } from "../components/ui/theme";
+import {colors, spacing} from "../components/ui/theme";
 
 const motivationalPhrases = [
     "Skvělá práce, jen tak dál!",
@@ -29,7 +29,7 @@ const speak = (text) =>
 
 const WorkoutSessionScreen = () => {
     const navigation = useNavigation();
-    const { planId } = useRoute().params;
+    const {planId} = useRoute().params;
 
     const [token, setToken] = useState(null);
     const [userId, setUserId] = useState(null);
@@ -61,7 +61,7 @@ const WorkoutSessionScreen = () => {
             const res = await fetch(
                 `http://localhost:8081/workout-exercises/${planId}`,
                 {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: {Authorization: `Bearer ${token}`},
                 }
             );
             const data = await res.json();
@@ -73,7 +73,7 @@ const WorkoutSessionScreen = () => {
                 const res = await fetch(
                     `http://localhost:8081/exercises/${ex.exerciseId}`,
                     {
-                        headers: { Authorization: `Bearer ${token}` },
+                        headers: {Authorization: `Bearer ${token}`},
                     }
                 );
                 const info = await res.json();
@@ -85,7 +85,7 @@ const WorkoutSessionScreen = () => {
         const fetchPlanName = async () => {
             try {
                 const res = await fetch(`http://localhost:8081/workout-plans/${planId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: {Authorization: `Bearer ${token}`},
                 });
                 if (res.ok) {
                     const data = await res.json();
@@ -157,7 +157,7 @@ const WorkoutSessionScreen = () => {
 
     const confirmEndWorkout = () => {
         Alert.alert("Ukončit trénink", "Opravdu chceš ukončit trénink?", [
-            { text: "Zrušit", style: "cancel" },
+            {text: "Zrušit", style: "cancel"},
             {
                 text: "Ukončit",
                 onPress: () => {
@@ -256,7 +256,7 @@ const WorkoutSessionScreen = () => {
                     Nastav si délku pauzy mezi sériemi: {restDuration} s
                 </Text>
                 <Slider
-                    style={{ width: "100%", height: 40 }}
+                    style={{width: "100%", height: 40}}
                     minimumValue={10}
                     maximumValue={180}
                     step={5}
@@ -292,7 +292,7 @@ const WorkoutSessionScreen = () => {
                 </Text>
 
                 {info?.imageUrl && (
-                    <Image source={{ uri: info.imageUrl }} style={styles.image} />
+                    <Image source={{uri: info.imageUrl}} style={styles.image}/>
                 )}
 
                 {info?.description && (
@@ -306,9 +306,9 @@ const WorkoutSessionScreen = () => {
 
                 {!isResting ? (
                     <>
-                        <AppButton title="Dokončit sérii" onPress={handleCompleteSet} />
-                        <AppButton title="Přeskočit cvik" onPress={skipExercise} color={colors.secondary} />
-                        <AppButton title="Ukončit trénink" onPress={confirmEndWorkout} color={colors.danger} />
+                        <AppButton title="Dokončit sérii" onPress={handleCompleteSet}/>
+                        <AppButton title="Přeskočit cvik" onPress={skipExercise} color={colors.secondary}/>
+                        <AppButton title="Ukončit trénink" onPress={confirmEndWorkout} color={colors.danger}/>
                     </>
                 ) : (
                     <>
@@ -319,7 +319,7 @@ const WorkoutSessionScreen = () => {
                             height={10}
                             color={colors.primary}
                         />
-                        <AppButton title="Přeskočit pauzu" onPress={skipRest} />
+                        <AppButton title="Přeskočit pauzu" onPress={skipRest}/>
                     </>
                 )}
             </AppCard>

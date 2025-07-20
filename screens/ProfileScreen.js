@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     View,
     Text,
@@ -13,9 +13,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppTitle from '../components/ui/AppTitle';
 import AppCard from '../components/ui/AppCard';
 import AppButton from '../components/ui/AppButton';
-import { colors, spacing } from '../components/ui/theme';
+import {colors, spacing} from '../components/ui/theme';
 
-const ProfileScreen = ({ navigation }) => {
+const ProfileScreen = ({navigation}) => {
     const [user, setUser] = useState(null);
     const [badges, setBadges] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -26,7 +26,7 @@ const ProfileScreen = ({ navigation }) => {
             if (!token) return;
 
             const userRes = await fetch('http://localhost:8081/users/me', {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: {Authorization: `Bearer ${token}`},
             });
 
             if (userRes.ok) {
@@ -35,7 +35,7 @@ const ProfileScreen = ({ navigation }) => {
             }
 
             const badgeRes = await fetch('http://localhost:8081/users/me/badges', {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: {Authorization: `Bearer ${token}`},
             });
 
             if (badgeRes.ok) {
@@ -53,12 +53,12 @@ const ProfileScreen = ({ navigation }) => {
         fetchUserData();
     }, []);
 
-    const renderBadge = ({ item }) => (
+    const renderBadge = ({item}) => (
         <View style={styles.badgeContainer}>
             {item.icon ? (
-                <Image source={{ uri: item.icon }} style={styles.icon} />
+                <Image source={{uri: item.icon}} style={styles.icon}/>
             ) : (
-                <View style={styles.placeholderIcon} />
+                <View style={styles.placeholderIcon}/>
             )}
             <Text style={styles.badgeName}>{item.name}</Text>
         </View>
@@ -67,7 +67,7 @@ const ProfileScreen = ({ navigation }) => {
     if (loading) {
         return (
             <View style={styles.centered}>
-                <ActivityIndicator size="large" color={colors.primary} />
+                <ActivityIndicator size="large" color={colors.primary}/>
             </View>
         );
     }
@@ -95,8 +95,8 @@ const ProfileScreen = ({ navigation }) => {
                 <Text style={styles.label}>Role: <Text style={styles.value}>{user.role}</Text></Text>
             </AppCard>
 
-            <AppButton title="Upravit profil" onPress={() => navigation.navigate("EditProfile")} />
-            <AppButton title="Změnit heslo" onPress={() => Alert.alert("Připravujeme obrazovku pro změnu hesla")} />
+            <AppButton title="Upravit profil" onPress={() => navigation.navigate("EditProfile")}/>
+            <AppButton title="Změnit heslo" onPress={() => Alert.alert("Připravujeme obrazovku pro změnu hesla")}/>
 
             <Text style={styles.badgesTitle}>Moje odznaky</Text>
             <FlatList
@@ -107,8 +107,8 @@ const ProfileScreen = ({ navigation }) => {
                 contentContainerStyle={styles.badgeList}
             />
 
-            <View style={{ marginTop: spacing.large }}>
-                <AppButton title="Zpět na Dashboard" onPress={() => navigation.navigate("Dashboard")} />
+            <View style={{marginTop: spacing.large}}>
+                <AppButton title="Zpět na Dashboard" onPress={() => navigation.navigate("Dashboard")}/>
             </View>
         </ScrollView>
     );

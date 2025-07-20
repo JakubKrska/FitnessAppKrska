@@ -1,9 +1,9 @@
 // components/PlanCard.js
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { colors, spacing, borderRadius } from './ui/theme';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {colors, spacing, borderRadius} from './ui/theme';
 
-const PlanCard = ({ name, goal, level, onPress }) => (
+const PlanCard = ({name, goal, level, onPress}) => (
     <TouchableOpacity onPress={onPress} style={styles.card}>
         <Text style={styles.title}>{name}</Text>
         <Text style={styles.text}>Cíl: {goal}</Text>

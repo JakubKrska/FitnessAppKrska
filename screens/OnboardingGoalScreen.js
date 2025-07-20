@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, Alert} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import AppTitle from '../components/ui/AppTitle';
 import AppButton from '../components/ui/AppButton';
-import { colors, spacing } from '../components/ui/theme';
+import {colors, spacing} from '../components/ui/theme';
 
 const GOALS = [
     "Zhubnout",
@@ -14,7 +14,7 @@ const GOALS = [
     "Zvýšit sílu",
 ];
 
-const OnboardingGoalScreen = ({ navigation }) => {
+const OnboardingGoalScreen = ({navigation}) => {
     const [selectedGoal, setSelectedGoal] = useState(null);
 
     const saveGoal = async () => {
@@ -30,7 +30,7 @@ const OnboardingGoalScreen = ({ navigation }) => {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ goal: selectedGoal }),
+            body: JSON.stringify({goal: selectedGoal}),
         });
 
         if (!res.ok) {
@@ -40,7 +40,7 @@ const OnboardingGoalScreen = ({ navigation }) => {
         }
 
         // pokračuj na výběr plánu (může být navržena další obrazovka)
-        navigation.replace("RecommendedPlans", { goal: selectedGoal });
+        navigation.replace("RecommendedPlans", {goal: selectedGoal});
     };
 
     return (
@@ -58,7 +58,7 @@ const OnboardingGoalScreen = ({ navigation }) => {
                     }}
                 />
             ))}
-            <AppButton title="Pokračovat" onPress={saveGoal} disabled={!selectedGoal} />
+            <AppButton title="Pokračovat" onPress={saveGoal} disabled={!selectedGoal}/>
         </View>
     );
 };
