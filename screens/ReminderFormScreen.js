@@ -1,32 +1,33 @@
-// screens/ReminderFormScreen.js
 import React, {useState} from 'react';
 import {View, Button, TextInput, Text, Alert} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { apiFetch } from '../api';
 
 export default function ReminderFormScreen({navigation}) {
     const [time, setTime] = useState('');
     const [days, setDays] = useState('');
 
     const submit = async () => {
-        const token = await AsyncStorage.getItem('token');
-        const res = await fetch('http://<YOUR_API>/reminders', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-                time,
-                daysOfWeek: days.split(',').map((d) => d.trim()),
-                workoutPlanId: null, // nebo zvol plán
-            }),
-        });
+        try {
+            const token = await AsyncStorage.getItem('token');
 
-        if (res.ok) {
+            await apiFetch('/reminders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    time,
+                    daysOfWeek: days.split(',').map((d) => d.trim()),
+                    workoutPlanId: null,
+                }),
+            });
+
             Alert.alert('Připomínka přidána');
             navigation.goBack();
-        } else {
-            Alert.alert('Chyba při ukládání');
+        } catch (err) {
+            Alert.alert('Chyba při ukládání', typeof err === 'string' ? err : 'Neznámá chyba.');
         }
     };
 

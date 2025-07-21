@@ -2,7 +2,10 @@ import React, {useEffect, useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Toast from 'react-native-toast-message'; // 👈 přidáno
+import Toast from 'react-native-toast-message';
+import { API_URL } from '@env';
+import { apiFetch } from './api';
+
 
 // Obrazovky
 import LoginScreen from './screens/LoginScreen';
@@ -27,10 +30,7 @@ export default function App() {
 
             if (token) {
                 try {
-                    const res = await fetch("http://localhost:8081/users/me", {
-                        headers: {Authorization: `Bearer ${token}`},
-                    });
-                    const user = await res.json();
+                    const user = await apiFetch("/users/me");
                     if (!user.goal || user.goal === "") {
                         setNeedsGoalSetup(true);
                     }
@@ -64,7 +64,7 @@ export default function App() {
                     )}
                 </Stack.Navigator>
             </NavigationContainer>
-            <Toast/> {/* 👈 přidáno sem */}
+            <Toast/>
         </>
     );
 }

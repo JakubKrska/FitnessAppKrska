@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, Alert} from 'react-native';
+import {View, Alert, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import AppTitle from '../components/ui/AppTitle';
 import AppButton from '../components/ui/AppButton';
 import {colors, spacing} from '../components/ui/theme';
+import { apiFetch } from '../api';
 
 const GOALS = [
     "Zhubnout",
@@ -24,23 +25,20 @@ const OnboardingGoalScreen = ({navigation}) => {
             return;
         }
 
-        const res = await fetch("http://localhost:8081/users/me", {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({goal: selectedGoal}),
-        });
+        try {
+            await apiFetch("/users/me", {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({goal: selectedGoal}),
+            });
 
-        if (!res.ok) {
-            const err = await res.text();
-            Alert.alert("Chyba při ukládání", err);
-            return;
+            navigation.replace("RecommendedPlans", {goal: selectedGoal});
+        } catch (err) {
+            Alert.alert("Chyba při ukládání", typeof err === "string" ? err : "Neznámá chyba.");
         }
-
-        // pokračuj na výběr plánu (může být navržena další obrazovka)
-        navigation.replace("RecommendedPlans", {goal: selectedGoal});
     };
 
     return (

@@ -12,6 +12,7 @@ import AppTitle from "../components/ui/AppTitle";
 import AppTextInput from "../components/ui/AppTextInput";
 import AppButton from "../components/ui/AppButton";
 import {colors, spacing} from "../components/ui/theme";
+import { apiFetch } from "../api";
 
 const EditProfileScreen = ({route, navigation}) => {
     const {user, onProfileUpdated} = route.params || {};
@@ -77,7 +78,7 @@ const EditProfileScreen = ({route, navigation}) => {
                 ...(formData.plainPassword === "" && {plainPassword: undefined}),
             };
 
-            const res = await fetch(`http://localhost:8081/users/${user.id}`, {
+            await apiFetch(`/users/${user.id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -85,11 +86,6 @@ const EditProfileScreen = ({route, navigation}) => {
                 },
                 body: JSON.stringify(payload),
             });
-
-            if (!res.ok) {
-                const errorText = await res.text();
-                throw new Error(errorText);
-            }
 
             Alert.alert("Profil upraven");
             if (onProfileUpdated) onProfileUpdated();
@@ -104,73 +100,37 @@ const EditProfileScreen = ({route, navigation}) => {
         <ScrollView contentContainerStyle={styles.container}>
             <AppTitle>Úprava profilu</AppTitle>
 
-            <AppTextInput
-                placeholder="Jméno"
-                value={formData.name}
-                onChangeText={(val) => handleChange("name", val)}
-            />
-            <AppTextInput
-                placeholder="Nové heslo (volitelné)"
-                secureTextEntry
-                value={formData.plainPassword}
-                onChangeText={(val) => handleChange("plainPassword", val)}
-            />
-            <AppTextInput
-                placeholder="Věk"
-                keyboardType="numeric"
-                value={formData.age}
-                onChangeText={(val) => handleChange("age", val)}
-            />
-            <AppTextInput
-                placeholder="Výška (cm)"
-                keyboardType="numeric"
-                value={formData.height}
-                onChangeText={(val) => handleChange("height", val)}
-            />
-            <AppTextInput
-                placeholder="Váha (kg)"
-                keyboardType="numeric"
-                value={formData.weight}
-                onChangeText={(val) => handleChange("weight", val)}
-            />
+            <AppTextInput placeholder="Jméno" value={formData.name} onChangeText={(val) => handleChange("name", val)} />
+            <AppTextInput placeholder="Nové heslo (volitelné)" secureTextEntry value={formData.plainPassword} onChangeText={(val) => handleChange("plainPassword", val)} />
+            <AppTextInput placeholder="Věk" keyboardType="numeric" value={formData.age} onChangeText={(val) => handleChange("age", val)} />
+            <AppTextInput placeholder="Výška (cm)" keyboardType="numeric" value={formData.height} onChangeText={(val) => handleChange("height", val)} />
+            <AppTextInput placeholder="Váha (kg)" keyboardType="numeric" value={formData.weight} onChangeText={(val) => handleChange("weight", val)} />
 
-            <TextLabel label="Pohlaví"/>
-            <Picker
-                selectedValue={formData.gender}
-                onValueChange={(val) => handleChange("gender", val)}
-                style={styles.picker}
-            >
-                <Picker.Item label="Vyber..." value=""/>
-                <Picker.Item label="Muž" value="male"/>
-                <Picker.Item label="Žena" value="female"/>
-                <Picker.Item label="Jiné" value="other"/>
+            <TextLabel label="Pohlaví" />
+            <Picker selectedValue={formData.gender} onValueChange={(val) => handleChange("gender", val)} style={styles.picker}>
+                <Picker.Item label="Vyber..." value="" />
+                <Picker.Item label="Muž" value="male" />
+                <Picker.Item label="Žena" value="female" />
+                <Picker.Item label="Jiné" value="other" />
             </Picker>
 
-            <TextLabel label="Cíl"/>
-            <Picker
-                selectedValue={formData.goal}
-                onValueChange={(val) => handleChange("goal", val)}
-                style={styles.picker}
-            >
-                <Picker.Item label="Vyber..." value=""/>
-                <Picker.Item label="Hubnutí" value="Hubnutí"/>
-                <Picker.Item label="Zůstat fit" value="Zůstat fit"/>
-                <Picker.Item label="Nabrat svaly" value="Nabrat svaly"/>
+            <TextLabel label="Cíl" />
+            <Picker selectedValue={formData.goal} onValueChange={(val) => handleChange("goal", val)} style={styles.picker}>
+                <Picker.Item label="Vyber..." value="" />
+                <Picker.Item label="Hubnutí" value="Hubnutí" />
+                <Picker.Item label="Zůstat fit" value="Zůstat fit" />
+                <Picker.Item label="Nabrat svaly" value="Nabrat svaly" />
             </Picker>
 
-            <TextLabel label="Zkušenosti"/>
-            <Picker
-                selectedValue={formData.experienceLevel}
-                onValueChange={(val) => handleChange("experienceLevel", val)}
-                style={styles.picker}
-            >
-                <Picker.Item label="Vyber..." value=""/>
-                <Picker.Item label="Začátečník" value="Začátečník"/>
-                <Picker.Item label="Pokročilý" value="Pokročilý"/>
-                <Picker.Item label="Expert" value="Expert"/>
+            <TextLabel label="Zkušenosti" />
+            <Picker selectedValue={formData.experienceLevel} onValueChange={(val) => handleChange("experienceLevel", val)} style={styles.picker}>
+                <Picker.Item label="Vyber..." value="" />
+                <Picker.Item label="Začátečník" value="Začátečník" />
+                <Picker.Item label="Pokročilý" value="Pokročilý" />
+                <Picker.Item label="Expert" value="Expert" />
             </Picker>
 
-            <AppButton title="Uložit změny" onPress={handleSubmit}/>
+            <AppButton title="Uložit změny" onPress={handleSubmit} />
         </ScrollView>
     );
 };

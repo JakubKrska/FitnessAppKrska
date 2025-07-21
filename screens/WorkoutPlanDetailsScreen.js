@@ -3,9 +3,9 @@ import {
     View,
     Text,
     Alert,
-    StyleSheet,
     ScrollView,
-    ActivityIndicator,
+    StyleSheet,
+    ActivityIndicator
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -17,6 +17,7 @@ import AppButton from '../components/ui/AppButton';
 import AppCard from '../components/ui/AppCard';
 import {colors, spacing} from '../components/ui/theme';
 import {useNavigation} from '@react-navigation/native';
+import {apiFetch} from '../api';
 
 const WorkoutPlanDetailsScreen = ({route}) => {
     const {planId} = route.params;
@@ -47,21 +48,14 @@ const WorkoutPlanDetailsScreen = ({route}) => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const [planRes, exRes, availRes] = await Promise.all([
-                fetch(`http://localhost:8081/workout-plans/${planId}`, {
-                    headers: {Authorization: `Bearer ${token}`},
-                }),
-                fetch(`http://localhost:8081/workout-exercises/${planId}`, {
-                    headers: {Authorization: `Bearer ${token}`},
-                }),
-                fetch(`http://localhost:8081/exercises`, {
-                    headers: {Authorization: `Bearer ${token}`},
-                }),
+            const [planData, exData, allExercises] = await Promise.all([
+                apiFetch(`/workout-plans/${planId}`, {headers: {Authorization: `Bearer ${token}`}}),
+                apiFetch(`/workout-exercises/${planId}`, {headers: {Authorization: `Bearer ${token}`}}),
+                apiFetch(`/exercises`, {headers: {Authorization: `Bearer ${token}`}}),
             ]);
-
-            setPlan(await planRes.json());
-            setExercises(await exRes.json());
-            setAvailableExercises(await availRes.json());
+            setPlan(planData);
+            setExercises(exData);
+            setAvailableExercises(allExercises);
         } catch (e) {
             console.error('Chyba:', e);
         } finally {
@@ -74,12 +68,9 @@ const WorkoutPlanDetailsScreen = ({route}) => {
         if (!exerciseId) return Alert.alert('Vyberte cvik');
 
         try {
-            const res = await fetch('http://localhost:8081/workout-exercises', {
+            await apiFetch(`/workout-exercises`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: {Authorization: `Bearer ${token}`},
                 body: JSON.stringify({
                     workoutPlanId: planId,
                     exerciseId,
@@ -90,15 +81,10 @@ const WorkoutPlanDetailsScreen = ({route}) => {
                 }),
             });
 
-            if (res.ok) {
-                await loadData();
-                setFormData({exerciseId: '', sets: 3, reps: 10, orderIndex: exercises.length + 1, restSeconds: 60});
-            } else {
-                const msg = await res.text();
-                Alert.alert('Chyba', msg);
-            }
+            await loadData();
+            setFormData({exerciseId: '', sets: 3, reps: 10, orderIndex: exercises.length + 1, restSeconds: 60});
         } catch (err) {
-            console.error('Chyba:', err);
+            Alert.alert('Chyba', err.message || 'Nepodařilo se přidat cvik.');
         }
     };
 
@@ -108,7 +94,7 @@ const WorkoutPlanDetailsScreen = ({route}) => {
             {
                 text: 'Smazat',
                 onPress: async () => {
-                    await fetch(`http://localhost:8081/workout-exercises/${id}`, {
+                    await apiFetch(`/workout-exercises/${id}`, {
                         method: 'DELETE',
                         headers: {Authorization: `Bearer ${token}`},
                     });
@@ -118,19 +104,12 @@ const WorkoutPlanDetailsScreen = ({route}) => {
         ]);
     };
 
-    const handleReorder = async (data) => {
-        setExercises(data);
-
-    };
-
     const renderItem = ({item, drag}) => {
         const full = availableExercises.find((e) => e.id === item.exerciseId);
         return (
             <AppCard onLongPress={drag}>
                 <Text style={styles.exerciseName}>{full?.name || 'Neznámý cvik'}</Text>
-                <Text>
-                    {item.sets}x{item.reps} • {item.restSeconds || 60}s pauza • Pořadí: {item.orderIndex}
-                </Text>
+                <Text>{item.sets}x{item.reps} • {item.restSeconds || 60}s pauza • Pořadí: {item.orderIndex}</Text>
                 <AppButton title="Odebrat" color={colors.danger} onPress={() => handleDelete(item.id)}/>
             </AppCard>
         );
@@ -171,11 +150,7 @@ const WorkoutPlanDetailsScreen = ({route}) => {
                 >
                     <Picker.Item label="-- Vyber cvik --" value=""/>
                     {availableExercises.map((ex) => (
-                        <Picker.Item
-                            key={ex.id}
-                            label={`${ex.name} – ${ex.muscleGroup}`}
-                            value={ex.id}
-                        />
+                        <Picker.Item key={ex.id} label={`${ex.name} – ${ex.muscleGroup}`} value={ex.id}/>
                     ))}
                 </Picker>
             </View>
@@ -213,7 +188,7 @@ const WorkoutPlanDetailsScreen = ({route}) => {
                 data={exercises}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
-                onDragEnd={({data}) => handleReorder(data)}
+                onDragEnd={({data}) => setExercises(data)}
                 contentContainerStyle={{paddingBottom: spacing.large}}
             />
         </ScrollView>

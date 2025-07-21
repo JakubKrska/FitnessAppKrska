@@ -1,20 +1,14 @@
-// screens/WorkoutHistoryScreen.js
 import React, {useEffect, useState} from 'react';
 import {
-    View,
-    ScrollView,
-    Text,
-    StyleSheet,
-    ActivityIndicator,
-    Alert
+    View, ScrollView, Text, StyleSheet, ActivityIndicator, Alert, TouchableOpacity
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {TouchableOpacity} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 
 import WorkoutHistoryCard from '../components/WorkoutHistoryCard';
 import AppTitle from '../components/ui/AppTitle';
 import {colors, spacing} from '../components/ui/theme';
+import { apiFetch } from '../api';
 
 const WorkoutHistoryScreen = () => {
     const [history, setHistory] = useState([]);
@@ -25,15 +19,10 @@ const WorkoutHistoryScreen = () => {
         try {
             const token = await AsyncStorage.getItem("token");
 
-            const res = await fetch("http://localhost:8081/users/me/history", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            const data = await apiFetch("/users/me/history", {
+                headers: {Authorization: `Bearer ${token}`},
             });
 
-            if (!res.ok) throw new Error(await res.text());
-
-            const data = await res.json();
             setHistory(data);
         } catch (err) {
             console.error("Chyba při načítání historie:", err);
@@ -63,14 +52,14 @@ const WorkoutHistoryScreen = () => {
                             historyId: entry.id,
                             completedAt: entry.completedAt,
                             planName: entry.workoutPlanName,
-                            planId: entry.workoutPlanId
+                            planId: entry.workoutPlanId,
                         })}
                     >
                         <WorkoutHistoryCard
                             date={new Date(entry.completedAt).toLocaleDateString('cs-CZ', {
                                 year: 'numeric',
                                 month: 'long',
-                                day: 'numeric'
+                                day: 'numeric',
                             })}
                             planName={entry.workoutPlanName || "Neznámý plán"}
                         />

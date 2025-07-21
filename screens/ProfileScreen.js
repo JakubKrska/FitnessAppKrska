@@ -10,10 +10,12 @@ import {
     Image,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import AppTitle from '../components/ui/AppTitle';
 import AppCard from '../components/ui/AppCard';
 import AppButton from '../components/ui/AppButton';
 import {colors, spacing} from '../components/ui/theme';
+import { apiFetch } from '../api';
 
 const ProfileScreen = ({navigation}) => {
     const [user, setUser] = useState(null);
@@ -25,23 +27,15 @@ const ProfileScreen = ({navigation}) => {
             const token = await AsyncStorage.getItem('token');
             if (!token) return;
 
-            const userRes = await fetch('http://localhost:8081/users/me', {
-                headers: {Authorization: `Bearer ${token}`},
+            const userData = await apiFetch('/users/me', {
+                headers: { Authorization: `Bearer ${token}` },
             });
+            setUser(userData);
 
-            if (userRes.ok) {
-                const userData = await userRes.json();
-                setUser(userData);
-            }
-
-            const badgeRes = await fetch('http://localhost:8081/users/me/badges', {
-                headers: {Authorization: `Bearer ${token}`},
+            const badgeData = await apiFetch('/users/me/badges', {
+                headers: { Authorization: `Bearer ${token}` },
             });
-
-            if (badgeRes.ok) {
-                const badgeData = await badgeRes.json();
-                setBadges(badgeData);
-            }
+            setBadges(badgeData);
         } catch (error) {
             Alert.alert('Chyba', 'Nepodařilo se načíst profil nebo odznaky.');
         } finally {

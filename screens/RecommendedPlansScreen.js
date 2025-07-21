@@ -6,55 +6,58 @@ import AppCard from '../components/ui/AppCard';
 import AppButton from '../components/ui/AppButton';
 import AppTitle from '../components/ui/AppTitle';
 import {colors, spacing} from '../components/ui/theme';
+import { apiFetch } from '../api';
 
 const RecommendedPlansScreen = ({route, navigation}) => {
     const {goal} = route.params;
     const [plans, setPlans] = useState([]);
 
     const fetchPlans = async () => {
-        const token = await AsyncStorage.getItem("token");
+        try {
+            const token = await AsyncStorage.getItem("token");
 
-        const res = await fetch(`http://localhost:8081/workout-plans`, {
-            headers: {Authorization: `Bearer ${token}`},
-        });
+            const allPlans = await apiFetch("/workout-plans", {
+                headers: {Authorization: `Bearer ${token}`},
+            });
 
-        const allPlans = await res.json();
-        const filtered = allPlans.filter(
-            (p) => p.goal === goal && p.isDefault
-        );
+            const filtered = allPlans.filter(
+                (p) => p.goal === goal && p.isDefault
+            );
 
-        setPlans(filtered);
+            setPlans(filtered);
+        } catch (err) {
+            Alert.alert("Chyba při načítání plánů", String(err));
+        }
     };
 
     const selectPlan = async (planId) => {
-        const token = await AsyncStorage.getItem("token");
-        const userId = await AsyncStorage.getItem("userId");
+        try {
+            const token = await AsyncStorage.getItem("token");
+            const userId = await AsyncStorage.getItem("userId");
 
-        if (!userId || !token) return;
+            if (!userId || !token) return;
 
-        const res = await fetch("http://localhost:8081/workout-plans", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-                userId,
-                name: "Můj plán – " + goal,
-                description: "Doporučený plán pro cíl: " + goal,
-                goal,
-                experienceLevel: "Začátečník",
-                isDefault: false,
-                basePlanId: planId,
-            }),
-        });
+            await apiFetch("/workout-plans", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    userId,
+                    name: "Můj plán – " + goal,
+                    description: "Doporučený plán pro cíl: " + goal,
+                    goal,
+                    experienceLevel: "Začátečník",
+                    isDefault: false,
+                    basePlanId: planId,
+                }),
+            });
 
-        if (res.ok) {
             Alert.alert("Plán přidán", "Doporučený plán byl přidán mezi tvé tréninky.");
             navigation.navigate("Dashboard");
-        } else {
-            const err = await res.text();
-            Alert.alert("Chyba", err);
+        } catch (err) {
+            Alert.alert("Chyba", typeof err === "string" ? err : "Nepodařilo se přidat plán.");
         }
     };
 

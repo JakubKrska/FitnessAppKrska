@@ -10,13 +10,14 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Picker} from '@react-native-picker/picker';
-import {Ionicons} from '@expo/vector-icons'; // ← ikona hvězdy
+import {Ionicons} from '@expo/vector-icons';
 
 import AppTitle from '../components/ui/AppTitle';
 import AppTextInput from '../components/ui/AppTextInput';
 import AppButton from '../components/ui/AppButton';
 import AppCard from '../components/ui/AppCard';
 import {colors, spacing, borderRadius} from '../components/ui/theme';
+import { apiFetch } from '../api';
 
 const ExerciseManagerScreen = () => {
     const [token, setToken] = useState(null);
@@ -50,10 +51,9 @@ const ExerciseManagerScreen = () => {
 
     const fetchExercises = async () => {
         try {
-            const res = await fetch('http://localhost:8081/exercises', {
-                headers: {Authorization: `Bearer ${token}`},
+            const data = await apiFetch('/exercises', {
+                headers: { Authorization: `Bearer ${token}` },
             });
-            const data = await res.json();
             setExercises(data);
         } catch (err) {
             console.error('Chyba při načítání cviků:', err);
@@ -62,26 +62,25 @@ const ExerciseManagerScreen = () => {
 
     const fetchFavorites = async () => {
         try {
-            const res = await fetch("http://localhost:8081/favorites", {
-                headers: {Authorization: `Bearer ${token}`}
+            const data = await apiFetch('/favorites', {
+                headers: { Authorization: `Bearer ${token}` },
             });
-            const data = await res.json();
             setFavorites(data.map(fav => fav.exerciseId));
         } catch (err) {
-            console.error("Chyba při načítání oblíbených:", err);
+            console.error('Chyba při načítání oblíbených:', err);
         }
     };
 
     const toggleFavorite = async (exerciseId) => {
         try {
             const method = favorites.includes(exerciseId) ? 'DELETE' : 'POST';
-            await fetch(`http://localhost:8081/favorites/${exerciseId}`, {
+            await apiFetch(`/favorites/${exerciseId}`, {
                 method,
-                headers: {Authorization: `Bearer ${token}`}
+                headers: { Authorization: `Bearer ${token}` },
             });
             fetchFavorites();
         } catch (err) {
-            console.error("Chyba při změně oblíbeného:", err);
+            console.error('Chyba při změně oblíbeného:', err);
         }
     };
 
@@ -112,28 +111,28 @@ const ExerciseManagerScreen = () => {
             <AppTextInput
                 placeholder="Vyhledat název..."
                 value={filters.search}
-                onChangeText={(val) => setFilters(prev => ({...prev, search: val}))}
+                onChangeText={(val) => setFilters(prev => ({ ...prev, search: val }))}
             />
 
             <Text style={styles.label}>Svalová skupina</Text>
             <Picker
                 selectedValue={filters.muscleGroup}
-                onValueChange={(val) => setFilters(prev => ({...prev, muscleGroup: val}))}
+                onValueChange={(val) => setFilters(prev => ({ ...prev, muscleGroup: val }))}
             >
-                <Picker.Item label="Všechny" value=""/>
+                <Picker.Item label="Všechny" value="" />
                 {muscleGroups.map((g) => (
-                    <Picker.Item key={g} label={g} value={g}/>
+                    <Picker.Item key={g} label={g} value={g} />
                 ))}
             </Picker>
 
             <Text style={styles.label}>Obtížnost</Text>
             <Picker
                 selectedValue={filters.difficulty}
-                onValueChange={(val) => setFilters(prev => ({...prev, difficulty: val}))}
+                onValueChange={(val) => setFilters(prev => ({ ...prev, difficulty: val }))}
             >
-                <Picker.Item label="Všechny" value=""/>
+                <Picker.Item label="Všechny" value="" />
                 {difficulties.map((d) => (
-                    <Picker.Item key={d} label={d} value={d}/>
+                    <Picker.Item key={d} label={d} value={d} />
                 ))}
             </Picker>
 
@@ -152,7 +151,7 @@ const ExerciseManagerScreen = () => {
                     <Text>Svaly: {ex.muscleGroup}</Text>
                     <Text>Obtížnost: {ex.difficulty}</Text>
                     {ex.imageUrl ? (
-                        <Image source={{uri: ex.imageUrl}} style={styles.image}/>
+                        <Image source={{ uri: ex.imageUrl }} style={styles.image} />
                     ) : null}
                 </AppCard>
             ))}

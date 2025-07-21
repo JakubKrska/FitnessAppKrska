@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { apiFetch } from '../api';
 
 const useUser = () => {
     const [user, setUser] = useState(null);
@@ -9,10 +10,12 @@ const useUser = () => {
         const fetchUser = async () => {
             try {
                 const token = await AsyncStorage.getItem("token");
-                const res = await fetch("http://localhost:8081/users/me", {
-                    headers: {Authorization: `Bearer ${token}`},
+                if (!token) throw new Error("Token nenalezen");
+
+                const data = await apiFetch("/users/me", {
+                    headers: { Authorization: `Bearer ${token}` },
                 });
-                const data = await res.json();
+
                 setUser(data);
             } catch (err) {
                 console.error("Chyba načtení uživatele:", err);

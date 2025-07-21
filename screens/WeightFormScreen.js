@@ -1,11 +1,12 @@
 import React, {useState} from 'react';
-import {View, StyleSheet, Alert} from 'react-native';
+import {View, StyleSheet, Alert, Text} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import AppTextInput from '../components/ui/AppTextInput';
 import AppButton from '../components/ui/AppButton';
 import AppTitle from '../components/ui/AppTitle';
 import {colors, spacing} from '../components/ui/theme';
+import { apiFetch } from '../api';
 
 const WeightFormScreen = ({navigation}) => {
     const [weight, setWeight] = useState('');
@@ -19,7 +20,7 @@ const WeightFormScreen = ({navigation}) => {
 
         try {
             const token = await AsyncStorage.getItem('token');
-            const res = await fetch('http://localhost:8081/weight', {
+            await apiFetch('/weight', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -28,14 +29,9 @@ const WeightFormScreen = ({navigation}) => {
                 body: JSON.stringify({weight: parseFloat(weight)}),
             });
 
-            if (res.ok) {
-                Alert.alert('Záznam přidán');
-                setWeight('');
-                navigation.goBack();
-            } else {
-                const err = await res.json();
-                Alert.alert('Chyba', JSON.stringify(err));
-            }
+            Alert.alert('Záznam přidán');
+            setWeight('');
+            navigation.goBack();
         } catch (err) {
             console.error('Chyba při odeslání váhy:', err);
             Alert.alert('Nepodařilo se odeslat váhu.');
@@ -55,7 +51,7 @@ const WeightFormScreen = ({navigation}) => {
                     setError(null);
                 }}
             />
-            {error && <View><Text style={styles.error}>{error}</Text></View>}
+            {error && <Text style={styles.error}>{error}</Text>}
 
             <AppButton title="Přidat" onPress={handleSubmit}/>
         </View>

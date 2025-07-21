@@ -5,17 +5,21 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import AppTitle from "../components/ui/AppTitle";
 import AppCard from "../components/ui/AppCard";
 import {colors, spacing} from "../components/ui/theme";
+import { apiFetch } from "../api";
 
 const FavoriteExercisesScreen = () => {
     const [favorites, setFavorites] = useState([]);
 
     const fetchFavorites = async () => {
-        const token = await AsyncStorage.getItem("token");
-        const res = await fetch("http://localhost:8081/favorites", {
-            headers: {Authorization: `Bearer ${token}`}
-        });
-        const data = await res.json();
-        setFavorites(data);
+        try {
+            const token = await AsyncStorage.getItem("token");
+            const data = await apiFetch("/favorites", {
+                headers: {Authorization: `Bearer ${token}`},
+            });
+            setFavorites(data);
+        } catch (err) {
+            console.error("Chyba při načítání oblíbených cviků:", err);
+        }
     };
 
     useEffect(() => {

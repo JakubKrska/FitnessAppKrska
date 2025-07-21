@@ -1,9 +1,9 @@
 import React, {useState} from "react";
 import {
     View,
-    Alert,
-    StyleSheet,
     Text,
+    StyleSheet,
+    Alert,
     TouchableOpacity,
     Pressable,
 } from "react-native";
@@ -14,6 +14,7 @@ import AppTextInput from "../components/ui/AppTextInput";
 import AppButton from "../components/ui/AppButton";
 import AppTitle from "../components/ui/AppTitle";
 import {colors, spacing} from "../components/ui/theme";
+import { apiFetch } from "../api";
 
 const RegisterScreen = () => {
     const [name, setName] = useState("");
@@ -31,22 +32,16 @@ const RegisterScreen = () => {
         }
 
         try {
-            const res = await fetch("http://localhost:8081/authUtils/register", {
+            await apiFetch("/authUtils/register", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({name, email, password}),
             });
 
-            if (!res.ok) {
-                const text = await res.text();
-                setError(text || "Registrace selhala");
-                return;
-            }
-
             Alert.alert("Úspěšná registrace", "Nyní se můžeš přihlásit.");
             navigation.navigate("Login");
         } catch (err) {
-            setError("Nepodařilo se připojit k serveru.");
+            setError(typeof err === "string" ? err : "Registrace selhala");
         }
     };
 

@@ -1,20 +1,19 @@
 import React, {useState} from "react";
 import {
     View,
-    Alert,
-    StyleSheet,
     Text,
+    StyleSheet,
     TouchableOpacity,
     Pressable,
 } from "react-native";
 import {useNavigation, useRoute} from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {MaterialIcons} from "@expo/vector-icons";
-
 import AppTextInput from "../components/ui/AppTextInput";
 import AppButton from "../components/ui/AppButton";
 import AppTitle from "../components/ui/AppTitle";
 import {colors, spacing} from "../components/ui/theme";
+import { apiFetch } from "../api";
 
 const LoginScreen = () => {
     const [email, setEmail] = useState("");
@@ -33,24 +32,18 @@ const LoginScreen = () => {
         }
 
         try {
-            const response = await fetch("http://localhost:8081/authUtils/login", {
+            const response = await apiFetch("/authUtils/login", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({email, password}),
             });
 
-            if (response.ok) {
-                const data = await response.json();
-                await AsyncStorage.setItem("token", data.token);
-                const payload = JSON.parse(atob(data.token.split(".")[1]));
-                await AsyncStorage.setItem("userId", payload.userId);
-                navigation.replace(redirectTo);
-            } else {
-                const err = await response.text();
-                setError(err || "Přihlášení selhalo");
-            }
+            await AsyncStorage.setItem("token", response.token);
+            const payload = JSON.parse(atob(response.token.split(".")[1]));
+            await AsyncStorage.setItem("userId", payload.userId);
+            navigation.replace(redirectTo);
         } catch (err) {
-            setError("Nepodařilo se připojit k serveru.");
+            setError(typeof err === "string" ? err : "Přihlášení selhalo");
         }
     };
 

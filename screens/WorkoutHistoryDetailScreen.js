@@ -14,6 +14,7 @@ import AppTitle from "../components/ui/AppTitle";
 import AppCard from "../components/ui/AppCard";
 import AppButton from "../components/ui/AppButton";
 import {colors, spacing} from "../components/ui/theme";
+import { apiFetch } from "../api";
 
 const WorkoutHistoryDetailScreen = () => {
     const route = useRoute();
@@ -29,32 +30,21 @@ const WorkoutHistoryDetailScreen = () => {
             try {
                 const token = await AsyncStorage.getItem("token");
 
-                const res = await fetch(`http://localhost:8081/workout-performance/${historyId}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                const data = await apiFetch(`/workout-performance/${historyId}`, {
+                    headers: {Authorization: `Bearer ${token}`},
                 });
-
-                if (!res.ok) throw new Error(await res.text());
-
-                const data = await res.json();
                 setPerformances(data);
 
-                // Fetch exercise names
                 const map = {};
                 for (const p of data) {
                     if (!map[p.exerciseId]) {
-                        const exRes = await fetch(`http://localhost:8081/exercises/${p.exerciseId}`, {
-                            headers: {
-                                Authorization: `Bearer ${token}`
-                            }
+                        const ex = await apiFetch(`/exercises/${p.exerciseId}`, {
+                            headers: {Authorization: `Bearer ${token}`},
                         });
-                        const ex = await exRes.json();
                         map[p.exerciseId] = ex.name;
                     }
                 }
                 setExerciseMap(map);
-
             } catch (err) {
                 console.error("Chyba při načítání detailů:", err);
                 Alert.alert("Chyba", "Nepodařilo se načíst podrobnosti tréninku.");
@@ -71,18 +61,15 @@ const WorkoutHistoryDetailScreen = () => {
             Alert.alert("Nelze spustit", "Tento trénink nemá přiřazený plán.");
             return;
         }
-
         navigation.navigate("WorkoutSession", {planId});
     };
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <AppTitle>Detail tréninku</AppTitle>
-
             <AppCard>
                 <Text style={styles.label}>Datum dokončení</Text>
                 <Text style={styles.text}>{new Date(completedAt).toLocaleString("cs-CZ")}</Text>
-
                 <Text style={[styles.label, {marginTop: spacing.medium}]}>Název plánu</Text>
                 <Text style={styles.text}>{planName || "Neznámý plán"}</Text>
             </AppCard>
@@ -96,9 +83,7 @@ const WorkoutHistoryDetailScreen = () => {
             ) : (
                 performances.map((item) => (
                     <AppCard key={item.id}>
-                        <Text style={styles.exerciseName}>
-                            {exerciseMap[item.exerciseId] || "Cvik"}
-                        </Text>
+                        <Text style={styles.exerciseName}>{exerciseMap[item.exerciseId] || "Cvik"}</Text>
                         <Text>Série: {item.setsCompleted}</Text>
                         <Text>Opakování: {item.repsCompleted}</Text>
                         <Text>Váha: {item.weightUsed ? `${item.weightUsed} kg` : "Neuvedeno"}</Text>
@@ -116,33 +101,11 @@ const WorkoutHistoryDetailScreen = () => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        padding: spacing.large,
-        backgroundColor: colors.background,
-        flexGrow: 1,
-    },
-    label: {
-        fontWeight: "bold",
-        fontSize: 16,
-        color: colors.text,
-        marginBottom: 4,
-    },
-    text: {
-        fontSize: 16,
-        color: colors.text,
-    },
-    exerciseName: {
-        fontSize: 16,
-        fontWeight: "bold",
-        marginBottom: 4,
-        color: colors.text,
-    },
-    empty: {
-        textAlign: "center",
-        color: colors.gray,
-        marginTop: spacing.large,
-        fontSize: 16,
-    },
+    container: { padding: spacing.large, backgroundColor: colors.background, flexGrow: 1 },
+    label: { fontWeight: "bold", fontSize: 16, color: colors.text, marginBottom: 4 },
+    text: { fontSize: 16, color: colors.text },
+    exerciseName: { fontSize: 16, fontWeight: "bold", marginBottom: 4, color: colors.text },
+    empty: { textAlign: "center", color: colors.gray, marginTop: spacing.large, fontSize: 16 },
 });
 
 export default WorkoutHistoryDetailScreen;

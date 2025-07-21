@@ -13,6 +13,7 @@ import AppTitle from '../components/ui/AppTitle';
 import AppButton from '../components/ui/AppButton';
 import AppCard from '../components/ui/AppCard';
 import {colors, spacing} from '../components/ui/theme';
+import apiFetch from '../api';
 
 const WorkoutPlansScreen = () => {
     const [plans, setPlans] = useState([]);
@@ -30,18 +31,12 @@ const WorkoutPlansScreen = () => {
     const fetchPlans = async () => {
         try {
             const token = await AsyncStorage.getItem('token');
-            const res = await fetch('http://localhost:8081/workout-plans', {
+            const res = await apiFetch('/workout-plans', {
                 headers: {Authorization: `Bearer ${token}`}
             });
-
-            if (res.ok) {
-                const data = await res.json();
-                setPlans(data);
-            } else {
-                console.error('Chyba při načítání plánů:', res.status);
-            }
+            setPlans(res);
         } catch (error) {
-            console.error('Chyba při volání fetch:', error);
+            console.error('Chyba při načítání plánů:', error);
         }
     };
 
@@ -58,7 +53,7 @@ const WorkoutPlansScreen = () => {
 
         try {
             const token = await AsyncStorage.getItem('token');
-            const res = await fetch('http://localhost:8081/workout-plans', {
+            await apiFetch('/workout-plans', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -66,18 +61,11 @@ const WorkoutPlansScreen = () => {
                 },
                 body: JSON.stringify(newPlan)
             });
-
-            if (res.ok) {
-                Alert.alert('Úspěch', 'Plán byl vytvořen');
-                setNewPlan({name: '', description: '', goal: '', experienceLevel: ''});
-                fetchPlans();
-            } else {
-                const errText = await res.text();
-                Alert.alert('Chyba', errText);
-            }
+            Alert.alert('Úspěch', 'Plán byl vytvořen');
+            setNewPlan({name: '', description: '', goal: '', experienceLevel: ''});
+            fetchPlans();
         } catch (error) {
-            console.error('Chyba při odesílání požadavku:', error);
-            Alert.alert('Chyba při připojení k serveru.');
+            Alert.alert('Chyba', error.message || 'Chyba při ukládání plánu.');
         }
     };
 

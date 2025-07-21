@@ -14,6 +14,7 @@ import AppTitle from '../components/ui/AppTitle';
 import AppCard from '../components/ui/AppCard';
 import AppButton from '../components/ui/AppButton';
 import {colors, spacing} from '../components/ui/theme';
+import { apiFetch } from '../api';
 
 const ExerciseDetailsScreen = () => {
     const route = useRoute();
@@ -29,8 +30,7 @@ const ExerciseDetailsScreen = () => {
     useEffect(() => {
         const fetchExercise = async () => {
             try {
-                const res = await fetch(`http://localhost:8081/exercises/${id}`);
-                const data = await res.json();
+                const data = await apiFetch(`/exercises/${id}`);
                 setExercise(data);
             } catch (err) {
                 console.error('Chyba při načítání cviku:', err);
@@ -57,10 +57,9 @@ const ExerciseDetailsScreen = () => {
         const checkFavorite = async () => {
             try {
                 const token = await AsyncStorage.getItem("token");
-                const res = await fetch("http://localhost:8081/favorites", {
+                const data = await apiFetch("/favorites", {
                     headers: {Authorization: `Bearer ${token}`}
                 });
-                const data = await res.json();
                 const exists = data.some(fav => fav.exerciseId === id);
                 setIsFavorite(exists);
             } catch (err) {
@@ -77,21 +76,19 @@ const ExerciseDetailsScreen = () => {
         try {
             const token = await AsyncStorage.getItem("token");
 
-            if (isFavorite) {
-                const res = await fetch("http://localhost:8081/favorites", {
-                    headers: {Authorization: `Bearer ${token}`}
-                });
-                const allFavs = await res.json();
-                const entry = allFavs.find(fav => fav.exerciseId === id);
+            const allFavs = await apiFetch("/favorites", {
+                headers: {Authorization: `Bearer ${token}`},
+            });
 
-                if (entry) {
-                    await fetch(`http://localhost:8081/favorites/${entry.id}`, {
-                        method: "DELETE",
-                        headers: {Authorization: `Bearer ${token}`}
-                    });
-                }
-            } else {
-                await fetch("http://localhost:8081/favorites", {
+            const entry = allFavs.find(fav => fav.exerciseId === id);
+
+            if (isFavorite && entry) {
+                await apiFetch(`/favorites/${entry.id}`, {
+                    method: "DELETE",
+                    headers: {Authorization: `Bearer ${token}`},
+                });
+            } else if (!isFavorite) {
+                await apiFetch("/favorites", {
                     method: "POST",
                     headers: {
                         Authorization: `Bearer ${token}`,

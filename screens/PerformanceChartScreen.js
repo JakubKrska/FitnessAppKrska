@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppTitle from '../components/ui/AppTitle';
 import ExercisePerformanceChart from '../components/ExercisePerformanceChart';
 import {colors, spacing} from '../components/ui/theme';
+import { apiFetch } from '../api';
 
 const PerformanceChartScreen = ({route}) => {
     const {exerciseId, exerciseName} = route.params;
@@ -23,17 +24,10 @@ const PerformanceChartScreen = ({route}) => {
             try {
                 const token = await AsyncStorage.getItem('token');
 
-                const res = await fetch(`http://localhost:8081/exercises/${exerciseId}/performance`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                const raw = await apiFetch(`/exercises/${exerciseId}/performance`, {
+                    headers: { Authorization: `Bearer ${token}` },
                 });
 
-                if (!res.ok) throw new Error(await res.text());
-
-                const raw = await res.json();
-
-                // Transformace dat pro graf
                 const formatted = raw
                     .filter(p => p.weightUsed != null)
                     .map(p => ({

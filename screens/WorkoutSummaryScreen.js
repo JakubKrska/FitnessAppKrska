@@ -6,9 +6,11 @@ import {colors, spacing} from '../components/ui/theme';
 import Toast from 'react-native-toast-message';
 import BadgeDetailModal from '../components/BadgeDetailModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {v4 as uuidv4} from 'uuid';
+import apiFetch from '../api';
 
 const WorkoutSummaryScreen = ({route, navigation}) => {
-    const {completedAt, planName, exercisesCompleted, totalSets, totalReps} = route.params;
+    const {completedAt, planName, exercisesCompleted, totalSets, totalReps, userId, planId} = route.params;
 
     const [unlockedBadges, setUnlockedBadges] = useState([]);
     const [selectedBadge, setSelectedBadge] = useState(null);
@@ -17,35 +19,30 @@ const WorkoutSummaryScreen = ({route, navigation}) => {
         const fetchBadges = async () => {
             const token = await AsyncStorage.getItem('token');
             try {
-                const res = await fetch('http://localhost:8081/workout-history', {
+                const response = await apiFetch('/workout-history', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({
-                        id: crypto.randomUUID(),
-                        userId: route.params.userId,
-                        workoutPlanId: route.params.planId,
+                        id: uuidv4(),
+                        userId,
+                        workoutPlanId: planId,
                         completedAt,
                     }),
                 });
 
-                const json = await res.json();
+                const newBadges = response.newBadges ?? [];
 
-                if (res.ok) {
-                    const json = await res.json();
-                    const newBadges = json.newBadges ?? [];
-
-                    if (newBadges.length > 0) {
-                        setUnlockedBadges(newBadges);
-                        Toast.show({
-                            type: 'success',
-                            text1: '🎉 Nový odznak!',
-                            text2: `${newBadges[0].name}`,
-                            onPress: () => setSelectedBadge(newBadges[0]),
-                        });
-                    }
+                if (newBadges.length > 0) {
+                    setUnlockedBadges(newBadges);
+                    Toast.show({
+                        type: 'success',
+                        text1: '🎉 Nový odznak!',
+                        text2: `${newBadges[0].name}`,
+                        onPress: () => setSelectedBadge(newBadges[0]),
+                    });
                 }
             } catch (err) {
                 console.error("Chyba při fetchi odznaků", err);

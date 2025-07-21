@@ -15,6 +15,7 @@ import AppCard from "../components/ui/AppCard";
 import AppTitle from "../components/ui/AppTitle";
 import PlanCard from "../components/PlanCard";
 import WorkoutHistoryCard from "../components/WorkoutHistoryCard";
+import { apiFetch } from "../api";
 
 const DashboardScreen = () => {
     const [userData, setUserData] = useState(null);
@@ -31,31 +32,26 @@ const DashboardScreen = () => {
         if (!token || !userId) return navigation.navigate("Login");
 
         try {
-            const res = await fetch("http://localhost:8081/users/me", {
+            const data = await apiFetch("/users/me", {
                 headers: {Authorization: `Bearer ${token}`},
             });
-            if (res.ok) {
-                const data = await res.json();
-                setUserData(data);
-                if (data.height && data.weight) {
-                    const bmiVal = (data.weight / ((data.height / 100) ** 2)).toFixed(1);
-                    setBmi(bmiVal);
-                }
-            } else {
-                navigation.navigate("Login");
+            setUserData(data);
+            if (data.height && data.weight) {
+                const bmiVal = (data.weight / ((data.height / 100) ** 2)).toFixed(1);
+                setBmi(bmiVal);
             }
-        } catch (e) {
-            console.error("Chyba načítání uživatele:", e);
+        } catch {
+            navigation.navigate("Login");
         }
     }, []);
 
     const fetchHistory = useCallback(async () => {
         const token = await AsyncStorage.getItem("token");
         try {
-            const res = await fetch("http://localhost:8081/workout-history", {
+            const history = await apiFetch("/workout-history", {
                 headers: {Authorization: `Bearer ${token}`},
             });
-            if (res.ok) setWorkoutHistory(await res.json());
+            setWorkoutHistory(history);
         } catch (e) {
             console.error("Chyba načítání historie:", e);
         }
@@ -65,13 +61,10 @@ const DashboardScreen = () => {
         const token = await AsyncStorage.getItem("token");
         const userId = await AsyncStorage.getItem("userId");
         try {
-            const res = await fetch("http://localhost:8081/workout-plans", {
+            const plans = await apiFetch("/workout-plans", {
                 headers: {Authorization: `Bearer ${token}`},
             });
-            if (res.ok) {
-                const data = await res.json();
-                setUserPlans(data.filter(p => p.userId === userId));
-            }
+            setUserPlans(plans.filter(p => p.userId === userId));
         } catch (e) {
             console.error("Chyba načítání plánů:", e);
         }

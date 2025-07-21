@@ -5,6 +5,7 @@ import {LineChart} from 'react-native-chart-kit';
 
 import AppTitle from '../components/ui/AppTitle';
 import {colors, spacing} from '../components/ui/theme';
+import { apiFetch } from '../api';
 
 const WeightChartScreen = () => {
     const [data, setData] = useState([]);
@@ -14,13 +15,11 @@ const WeightChartScreen = () => {
         const fetchWeights = async () => {
             try {
                 const token = await AsyncStorage.getItem('token');
-                const res = await fetch('http://localhost:8081/weight', {
+                const weights = await apiFetch('/weight', {
                     headers: {Authorization: `Bearer ${token}`},
                 });
 
-                const text = await res.text();
-                const json = JSON.parse(text);
-                const sorted = json.map(entry => ({
+                const sorted = weights.map(entry => ({
                     ...entry,
                     date: new Date(entry.loggedAt).toLocaleDateString(),
                 }));
@@ -54,18 +53,12 @@ const WeightChartScreen = () => {
 
     const chartData = {
         labels: data.map((d, i) => (i % 2 === 0 ? d.date : '')),
-        datasets: [
-            {
-                data: data.map(d => d.weight),
-                strokeWidth: 2,
-            },
-        ],
+        datasets: [{ data: data.map(d => d.weight), strokeWidth: 2 }],
     };
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <AppTitle>Vývoj váhy</AppTitle>
-
             <LineChart
                 data={chartData}
                 width={Dimensions.get('window').width - 32}

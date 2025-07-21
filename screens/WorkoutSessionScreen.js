@@ -11,6 +11,7 @@ import AppTitle from "../components/ui/AppTitle";
 import AppCard from "../components/ui/AppCard";
 import AppButton from "../components/ui/AppButton";
 import {colors, spacing} from "../components/ui/theme";
+import apiFetch from "../api";
 
 const motivationalPhrases = [
     "Skvělá práce, jen tak dál!",
@@ -58,25 +59,18 @@ const WorkoutSessionScreen = () => {
         if (!token || !userId) return;
 
         const fetchWorkout = async () => {
-            const res = await fetch(
-                `http://localhost:8081/workout-exercises/${planId}`,
-                {
-                    headers: {Authorization: `Bearer ${token}`},
-                }
-            );
-            const data = await res.json();
+            const data = await apiFetch(`/workout-exercises/${planId}`, {
+                headers: {Authorization: `Bearer ${token}`},
+            });
+
             const sorted = data.sort((a, b) => a.orderIndex - b.orderIndex);
             setWorkoutExercises(sorted);
 
             const details = {};
             for (const ex of sorted) {
-                const res = await fetch(
-                    `http://localhost:8081/exercises/${ex.exerciseId}`,
-                    {
-                        headers: {Authorization: `Bearer ${token}`},
-                    }
-                );
-                const info = await res.json();
+                const info = await apiFetch(`/exercises/${ex.exerciseId}`, {
+                    headers: {Authorization: `Bearer ${token}`},
+                });
                 details[ex.exerciseId] = info;
             }
             setExerciseDetails(details);
@@ -84,15 +78,10 @@ const WorkoutSessionScreen = () => {
 
         const fetchPlanName = async () => {
             try {
-                const res = await fetch(`http://localhost:8081/workout-plans/${planId}`, {
+                const data = await apiFetch(`/workout-plans/${planId}`, {
                     headers: {Authorization: `Bearer ${token}`},
                 });
-                if (res.ok) {
-                    const data = await res.json();
-                    setPlanName(data.name);
-                } else {
-                    console.warn("Nepodařilo se načíst název plánu:", res.status);
-                }
+                setPlanName(data.name);
             } catch (e) {
                 console.error("Chyba při načítání plánu:", e);
             }
@@ -131,8 +120,7 @@ const WorkoutSessionScreen = () => {
     };
 
     const handleCompleteSet = () => {
-        const phrase =
-            motivationalPhrases[Math.floor(Math.random() * motivationalPhrases.length)];
+        const phrase = motivationalPhrases[Math.floor(Math.random() * motivationalPhrases.length)];
         speak(`Série dokončena. ${phrase} Pauza začíná.`);
         setIsResting(true);
     };
@@ -171,7 +159,7 @@ const WorkoutSessionScreen = () => {
     const logWorkoutCompletion = async () => {
         const completedAt = new Date().toISOString();
 
-        await fetch("http://localhost:8081/workout-history", {
+        await apiFetch("/workout-history", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -185,18 +173,6 @@ const WorkoutSessionScreen = () => {
             }),
         });
 
-        const result = await res.json();
-
-        if (result.unlockedBadges && result.unlockedBadges.length > 0) {
-            for (const badge of result.unlockedBadges) {
-                Toast.show({
-                    type: "success",
-                    text1: `🎉 Odznak získán!`,
-                    text2: `${badge.name} – ${badge.description || ""}`,
-                    position: "top",
-                });
-            }
-        }
         const totalSets = workoutExercises.reduce((sum, ex) => sum + ex.sets, 0);
         const totalReps = workoutExercises.reduce((sum, ex) => sum + (ex.sets * ex.reps), 0);
 
@@ -223,10 +199,7 @@ const WorkoutSessionScreen = () => {
         return (
             <View style={styles.center}>
                 <AppTitle>Trénink dokončen!</AppTitle>
-                <AppButton
-                    title="Zpět na Dashboard"
-                    onPress={() => navigation.navigate("Dashboard")}
-                />
+                <AppButton title="Zpět na Dashboard" onPress={() => navigation.navigate("Dashboard")}/>
             </View>
         );
     }
@@ -239,12 +212,8 @@ const WorkoutSessionScreen = () => {
                     const info = exerciseDetails[ex.exerciseId];
                     return (
                         <AppCard key={ex.id}>
-                            <Text style={styles.bold}>
-                                {i + 1}. {info?.name || "Neznámý cvik"}
-                            </Text>
-                            <Text>
-                                {ex.sets} x {ex.reps}
-                            </Text>
+                            <Text style={styles.bold}>{i + 1}. {info?.name || "Neznámý cvik"}</Text>
+                            <Text>{ex.sets} x {ex.reps}</Text>
                             {info?.description && (
                                 <Text style={styles.desc}>{info.description}</Text>
                             )}
@@ -282,14 +251,10 @@ const WorkoutSessionScreen = () => {
 
     return (
         <View style={styles.container}>
-            <AppTitle>
-                {currentIndex + 1}/{workoutExercises.length} Trénink
-            </AppTitle>
+            <AppTitle>{currentIndex + 1}/{workoutExercises.length} Trénink</AppTitle>
 
             <AppCard>
-                <Text style={styles.label}>
-                    {currentIndex + 1}. {info?.name || "Neznámý cvik"}
-                </Text>
+                <Text style={styles.label}>{currentIndex + 1}. {info?.name || "Neznámý cvik"}</Text>
 
                 {info?.imageUrl && (
                     <Image source={{uri: info.imageUrl}} style={styles.image}/>
@@ -299,9 +264,7 @@ const WorkoutSessionScreen = () => {
                     <Text style={styles.desc}>{info.description}</Text>
                 )}
 
-                <Text style={styles.status}>
-                    Série: {currentSet} / {current.sets}
-                </Text>
+                <Text style={styles.status}>Série: {currentSet} / {current.sets}</Text>
                 <Text style={styles.status}>Opakování: {current.reps}</Text>
 
                 {!isResting ? (
@@ -313,12 +276,7 @@ const WorkoutSessionScreen = () => {
                 ) : (
                     <>
                         <Text style={styles.rest}>⏱ Pauza: {restTime}s</Text>
-                        <Bar
-                            progress={(restDuration - restTime) / restDuration}
-                            width={null}
-                            height={10}
-                            color={colors.primary}
-                        />
+                        <Bar progress={(restDuration - restTime) / restDuration} width={null} height={10} color={colors.primary}/>
                         <AppButton title="Přeskočit pauzu" onPress={skipRest}/>
                     </>
                 )}

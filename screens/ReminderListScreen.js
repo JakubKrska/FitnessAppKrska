@@ -1,8 +1,8 @@
-// screens/ReminderListScreen.js
 import React, {useEffect, useState} from 'react';
 import {View, Text, FlatList, Button, Alert} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useIsFocused} from '@react-navigation/native';
+import { apiFetch } from '../api';
 
 export default function ReminderListScreen({navigation}) {
     const [reminders, setReminders] = useState([]);
@@ -13,21 +13,28 @@ export default function ReminderListScreen({navigation}) {
     }, [isFocused]);
 
     const fetchReminders = async () => {
-        const token = await AsyncStorage.getItem('token');
-        const res = await fetch('http://<YOUR_API>/reminders', {
-            headers: {Authorization: `Bearer ${token}`},
-        });
-        const data = await res.json();
-        setReminders(data);
+        try {
+            const token = await AsyncStorage.getItem('token');
+            const data = await apiFetch('/reminders', {
+                headers: {Authorization: `Bearer ${token}`},
+            });
+            setReminders(data);
+        } catch (err) {
+            Alert.alert("Chyba", "Nepodařilo se načíst připomínky.");
+        }
     };
 
     const deleteReminder = async (id) => {
-        const token = await AsyncStorage.getItem('token');
-        await fetch(`http://<YOUR_API>/reminders/${id}`, {
-            method: 'DELETE',
-            headers: {Authorization: `Bearer ${token}`},
-        });
-        fetchReminders();
+        try {
+            const token = await AsyncStorage.getItem('token');
+            await apiFetch(`/reminders/${id}`, {
+                method: 'DELETE',
+                headers: {Authorization: `Bearer ${token}`},
+            });
+            fetchReminders();
+        } catch (err) {
+            Alert.alert("Chyba", "Nepodařilo se smazat připomínku.");
+        }
     };
 
     return (

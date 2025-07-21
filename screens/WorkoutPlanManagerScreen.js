@@ -5,7 +5,7 @@ import {
     StyleSheet,
     FlatList,
     Text,
-    View,
+    View
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -14,6 +14,7 @@ import AppButton from '../components/ui/AppButton';
 import AppTitle from '../components/ui/AppTitle';
 import AppCard from '../components/ui/AppCard';
 import {colors, spacing} from '../components/ui/theme';
+import {apiFetch} from '../api';
 
 const WorkoutPlanManagerScreen = ({navigation}) => {
     const [plans, setPlans] = useState([]);
@@ -29,10 +30,8 @@ const WorkoutPlanManagerScreen = ({navigation}) => {
 
     useEffect(() => {
         const loadCredentials = async () => {
-            const storedToken = await AsyncStorage.getItem('token');
-            const storedUserId = await AsyncStorage.getItem('userId');
-            setToken(storedToken);
-            setUserId(storedUserId);
+            setToken(await AsyncStorage.getItem('token'));
+            setUserId(await AsyncStorage.getItem('userId'));
         };
         loadCredentials();
     }, []);
@@ -42,15 +41,10 @@ const WorkoutPlanManagerScreen = ({navigation}) => {
     }, [token]);
 
     const fetchPlans = async () => {
-        try {
-            const res = await fetch('http://localhost:8081/workout-plans', {
-                headers: {Authorization: `Bearer ${token}`},
-            });
-            const data = await res.json();
-            setPlans(data);
-        } catch (e) {
-            console.error('Chyba při načítání plánů:', e);
-        }
+        const data = await apiFetch(`/workout-plans`, {
+            headers: {Authorization: `Bearer ${token}`},
+        });
+        setPlans(data);
     };
 
     const handleSubmit = async () => {
@@ -60,31 +54,20 @@ const WorkoutPlanManagerScreen = ({navigation}) => {
             return;
         }
 
-        const url = editingPlan
-            ? `http://localhost:8081/workout-plans/${editingPlan.id}`
-            : 'http://localhost:8081/workout-plans';
+        const url = editingPlan ? `/workout-plans/${editingPlan.id}` : `/workout-plans`;
         const method = editingPlan ? 'PUT' : 'POST';
 
         try {
-            const res = await fetch(url, {
+            await apiFetch(url, {
                 method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: {Authorization: `Bearer ${token}`},
                 body: JSON.stringify(formData),
             });
-
-            if (res.ok) {
-                await fetchPlans();
-                setFormData({name: '', description: '', experienceLevel: '', goal: ''});
-                setEditingPlan(null);
-            } else {
-                const err = await res.text();
-                Alert.alert('Chyba', err);
-            }
-        } catch (e) {
-            Alert.alert('Chyba', 'Nepodařilo se uložit plán.');
+            await fetchPlans();
+            setFormData({name: '', description: '', experienceLevel: '', goal: ''});
+            setEditingPlan(null);
+        } catch (err) {
+            Alert.alert('Chyba', err.message || 'Nepodařilo se uložit plán.');
         }
     };
 
@@ -95,15 +78,11 @@ const WorkoutPlanManagerScreen = ({navigation}) => {
                 text: 'Smazat',
                 style: 'destructive',
                 onPress: async () => {
-                    try {
-                        await fetch(`http://localhost:8081/workout-plans/${id}`, {
-                            method: 'DELETE',
-                            headers: {Authorization: `Bearer ${token}`},
-                        });
-                        await fetchPlans();
-                    } catch (err) {
-                        Alert.alert('Chyba', 'Nepodařilo se smazat plán.');
-                    }
+                    await apiFetch(`/workout-plans/${id}`, {
+                        method: 'DELETE',
+                        headers: {Authorization: `Bearer ${token}`},
+                    });
+                    await fetchPlans();
                 },
             },
         ]);
@@ -165,10 +144,7 @@ const WorkoutPlanManagerScreen = ({navigation}) => {
                 multiline
             />
 
-            <AppButton
-                title={editingPlan ? 'Uložit změny' : 'Přidat plán'}
-                onPress={handleSubmit}
-            />
+            <AppButton title={editingPlan ? 'Uložit změny' : 'Přidat plán'} onPress={handleSubmit}/>
 
             {editingPlan && (
                 <AppButton
