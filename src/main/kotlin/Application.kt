@@ -20,7 +20,7 @@ fun Application.module() {
     configureCORS()
     configureSecurity()
     configureSerialization()
-    DatabaseFactory.init()
+    DatabaseFactory.init(environment.config)
     configureRouting()
 }
 

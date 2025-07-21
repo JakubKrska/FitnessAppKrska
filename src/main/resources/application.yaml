@@ -1,12 +1,12 @@
 ktor:
+  deployment:
+    port: 8081
   application:
     modules:
       - com.example.ApplicationKt.module
-  deployment:
-    port: 8081
 
 database:
   driver: org.postgresql.Driver
   url: "jdbc:postgresql://gondola.proxy.rlwy.net:46744/railway"
   user: "postgres"
-  password: "251436"
+  password: "QZKiLKZulGXztpGLRGVvYnYpmyPorNZn"
