@@ -34,11 +34,12 @@ const OnboardingGoalScreen = ({ navigation }) => {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
                     },
-                    body: JSON.stringify({ goal: selectedGoal || "" }),
+                    body: JSON.stringify({ goal: selectedGoal }),
                 });
             }
 
-            navigation.replace("RecommendedPlans", { goal: selectedGoal || "Nezvolen" });
+            // Přesměrování rovnou na dashboard
+            navigation.replace("Dashboard");
 
         } catch (err) {
             Alert.alert("Chyba při ukládání", typeof err === "string" ? err : "Neznámá chyba.");
@@ -49,7 +50,6 @@ const OnboardingGoalScreen = ({ navigation }) => {
         <View style={styles.container}>
             <AppTitle>Jaký je tvůj cíl?</AppTitle>
 
-            {/* Debug info – můžeš smazat později */}
             {selectedGoal && (
                 <Text style={styles.selected}>Zvolený cíl: {selectedGoal}</Text>
             )}
