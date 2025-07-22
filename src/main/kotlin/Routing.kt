@@ -119,6 +119,22 @@ fun Application.configureRouting() {
             }
         }
         authenticate("authUtils-jwt") {
+            post("/users/me/goal") {
+                val userId = call.getUserIdFromToken()
+                val goalRequest = call.receive<GoalUpdateRequest>()
+
+                val updated = userRepository.updateUserGoal(userId, goalRequest.goal)
+                if (!updated) return@post call.respond(HttpStatusCode.NotFound, "Uživatel nenalezen")
+
+                val assignedPlan = planService.assignDefaultPlanToUser(userId, goalRequest.goal)
+
+                call.respond(
+                    HttpStatusCode.OK, mapOf(
+                        "message" to "Cíl nastaven",
+                        "assignedPlan" to assignedPlan.toResponse()
+                    )
+                )
+            }
             get("/users/me/history") {
                 val principal = call.principal<JWTPrincipal>()
                 val userId = principal?.getUserId()
@@ -164,24 +180,6 @@ fun Application.configureRouting() {
 
                 call.respond(response)
             }
-            post("/users/me/goal") {
-                val userId = call.getUserIdFromToken()
-                val goalRequest = call.receive<GoalUpdateRequest>()
-
-                val updated = userRepository.updateUserGoal(userId, goalRequest.goal)
-                if (!updated) return@post call.respond(HttpStatusCode.NotFound, "Uživatel nenalezen")
-
-                val assignedPlan = planService.assignDefaultPlanToUser(userId, goalRequest.goal)
-
-                call.respond(
-                    HttpStatusCode.OK, mapOf(
-                        "message" to "Cíl nastaven",
-                        "assignedPlan" to assignedPlan.toResponse()
-                    )
-                )
-            }
-
-
             post("/badges/unlock") {
                 val principal = call.principal<JWTPrincipal>() ?: return@post call.respond(HttpStatusCode.Unauthorized)
                 val userId = principal.getUserId() ?: return@post call.respond(HttpStatusCode.BadRequest)
