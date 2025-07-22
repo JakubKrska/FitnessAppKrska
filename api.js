@@ -12,17 +12,29 @@ export const apiFetch = async (endpoint, options = {}) => {
         ...options.headers,
     };
 
-    console.log("Volám endpoint:", `${API_URL}${endpoint}`);
+    const url = `${API_URL}${endpoint}`;
+    console.log("📡 Volám endpoint:", url);
 
-    const res = await fetch(`${API_URL}${endpoint}`, {
+    const res = await fetch(url, {
         ...options,
         headers,
     });
 
-    if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || "Chyba API");
+    const text = await res.text();
+
+    let data;
+    try {
+        data = JSON.parse(text);
+    } catch (e) {
+        console.warn("⚠️ Odpověď není validní JSON:", text);
+        data = null;
     }
 
-    return res.json();
+    if (!res.ok) {
+        const errorMessage = data?.message || text || "Chyba API";
+        console.error("❌ API error:", errorMessage);
+        throw new Error(errorMessage);
+    }
+
+    return data;
 };

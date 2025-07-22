@@ -1,10 +1,10 @@
-import React, {useState} from 'react';
-import {View, Alert, StyleSheet} from 'react-native';
+import React, { useState } from 'react';
+import { View, Alert, StyleSheet, Text } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import AppTitle from '../components/ui/AppTitle';
 import AppButton from '../components/ui/AppButton';
-import {colors, spacing} from '../components/ui/theme';
+import { colors, spacing } from '../components/ui/theme';
 import { apiFetch } from '../api';
 
 const GOALS = [
@@ -15,27 +15,31 @@ const GOALS = [
     "Zvýšit sílu",
 ];
 
-const OnboardingGoalScreen = ({navigation}) => {
+const OnboardingGoalScreen = ({ navigation }) => {
     const [selectedGoal, setSelectedGoal] = useState(null);
 
     const saveGoal = async () => {
         const token = await AsyncStorage.getItem("token");
-        if (!selectedGoal || !token) {
-            Alert.alert("Vyber svůj cíl.");
+
+        if (!token) {
+            Alert.alert("Chyba", "Přihlášení selhalo");
             return;
         }
 
         try {
-            await apiFetch("/users/me", {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({goal: selectedGoal}),
-            });
+            if (selectedGoal) {
+                await apiFetch("/users/me", {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ goal: selectedGoal }),
+                });
+            }
 
-            navigation.replace("RecommendedPlans", {goal: selectedGoal});
+            navigation.replace("RecommendedPlans", { goal: selectedGoal || "Nezvolen" });
+
         } catch (err) {
             Alert.alert("Chyba při ukládání", typeof err === "string" ? err : "Neznámá chyba.");
         }
@@ -44,19 +48,34 @@ const OnboardingGoalScreen = ({navigation}) => {
     return (
         <View style={styles.container}>
             <AppTitle>Jaký je tvůj cíl?</AppTitle>
+
+            {/* Debug info – můžeš smazat později */}
+            {selectedGoal && (
+                <Text style={styles.selected}>Zvolený cíl: {selectedGoal}</Text>
+            )}
+
             {GOALS.map((goal) => (
                 <AppButton
                     key={goal}
                     title={goal}
-                    onPress={() => setSelectedGoal(goal)}
+                    onPress={() => {
+                        console.log("Kliknuto:", goal);
+                        setSelectedGoal(goal);
+                    }}
                     style={{
-                        backgroundColor:
-                            selectedGoal === goal ? colors.primary : colors.card,
+                        backgroundColor: selectedGoal === goal ? colors.primary : colors.card,
                         marginBottom: spacing.small,
+                    }}
+                    textStyle={{
+                        color: selectedGoal === goal ? colors.white : colors.text,
                     }}
                 />
             ))}
-            <AppButton title="Pokračovat" onPress={saveGoal} disabled={!selectedGoal}/>
+
+            <AppButton
+                title={selectedGoal ? "Pokračovat" : "Přeskočit a pokračovat"}
+                onPress={saveGoal}
+            />
         </View>
     );
 };
@@ -66,6 +85,12 @@ const styles = StyleSheet.create({
         padding: spacing.large,
         backgroundColor: colors.background,
         flex: 1,
+    },
+    selected: {
+        textAlign: 'center',
+        marginBottom: spacing.medium,
+        color: colors.primary,
+        fontWeight: 'bold',
     },
 });
 

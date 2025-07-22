@@ -3,8 +3,7 @@ import { View, Text, StyleSheet } from "react-native";
 import AppButton from "../components/ui/AppButton";
 import { colors, spacing } from "../components/ui/theme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import LoginScreen from "./LoginScreen";
-import RegisterScreen from "./RegisterScreen";
+
 
 const WelcomeScreen = ({ navigation }) => {
 
@@ -25,8 +24,9 @@ const WelcomeScreen = ({ navigation }) => {
             <Text style={styles.title}>Vítej ve FitnessApp</Text>
             <Text style={styles.subtitle}>Sleduj pokroky, plánuj tréninky, motivuj se.</Text>
 
-            <AppButton title="Přihlásit se" onPress={() => navigation.navigate(LoginScreen)} />
-            <AppButton title="Registrace" onPress={() => navigation.navigate(RegisterScreen)} />
+            <AppButton title="Přihlásit se" onPress={() => navigation.navigate("Login")} />
+            <AppButton title="Registrace" onPress={() => navigation.navigate("Register")} />
+
         </View>
     );
 };

@@ -1,69 +1,64 @@
-import React, {useEffect, useState} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import React, { useEffect, useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import { apiFetch } from './api';
 
-
 // Obrazovky
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
-import BottomTabNavigator from './navigation/BottomTabNavigator';
 import WelcomeScreen from './screens/WelcomeScreen';
 import OnboardingGoalScreen from './screens/OnboardingGoalScreen';
+import RecommendedPlansScreen from './screens/RecommendedPlansScreen';
+import BottomTabNavigator from './navigation/BottomTabNavigator'; // obsahuje Dashboard
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-    const [isLoggedIn, setIsLoggedIn] = useState(null);
-    const [hasSeenWelcome, setHasSeenWelcome] = useState(null);
-    const [needsGoalSetup, setNeedsGoalSetup] = useState(false);
+    const [initialRoute, setInitialRoute] = useState(null);
 
     useEffect(() => {
         const checkStartupState = async () => {
             const token = await AsyncStorage.getItem('token');
             const seenWelcome = await AsyncStorage.getItem('hasSeenWelcome');
-            setIsLoggedIn(!!token);
-            setHasSeenWelcome(!!seenWelcome);
 
-            if (token) {
-                try {
-                    const user = await apiFetch("/users/me");
-                    if (!user.goal || user.goal === "") {
-                        setNeedsGoalSetup(true);
-                    }
-                } catch (e) {
-                    console.error("Chyba při načítání uživatele", e);
+            if (!seenWelcome) return setInitialRoute("Welcome");
+            if (!token) return setInitialRoute("Login");
+
+            try {
+                const user = await apiFetch("/users/me");
+                if (!user.goal || user.goal === "") {
+                    return setInitialRoute("OnboardingGoal");
                 }
+                return setInitialRoute("Dashboard");
+            } catch (e) {
+                console.error("Chyba při načítání uživatele", e);
+                return setInitialRoute("Login");
             }
         };
+
         checkStartupState();
     }, []);
 
-    if (isLoggedIn === null || hasSeenWelcome === null) return null; // loader
+    if (!initialRoute) return null; // nebo loader
 
     return (
         <>
             <NavigationContainer>
-                <Stack.Navigator screenOptions={{ headerShown: false }}>
-                    {!hasSeenWelcome ? (
-                        <Stack.Screen name="Welcome" component={WelcomeScreen} />
-                    ) : isLoggedIn ? (
-                        needsGoalSetup ? (
-                            <Stack.Screen name="OnboardingGoal" component={OnboardingGoalScreen} />
-                        ) : (
-                            <Stack.Screen name="MainApp" component={BottomTabNavigator} />
-                        )
-                    ) : (
-                        <>
-                            <Stack.Screen name="Login" component={LoginScreen} />
-                            <Stack.Screen name="Register" component={RegisterScreen} />
-                        </>
-                    )}
+                <Stack.Navigator
+                    initialRouteName={initialRoute}
+                    screenOptions={{ headerShown: false }}
+                >
+                    <Stack.Screen name="Welcome" component={WelcomeScreen} />
+                    <Stack.Screen name="Login" component={LoginScreen} />
+                    <Stack.Screen name="Register" component={RegisterScreen} />
+                    <Stack.Screen name="OnboardingGoal" component={OnboardingGoalScreen} />
+                    <Stack.Screen name="RecommendedPlans" component={RecommendedPlansScreen} />
+                    <Stack.Screen name="Dashboard" component={BottomTabNavigator} />
                 </Stack.Navigator>
             </NavigationContainer>
-            <Toast/>
+            <Toast />
         </>
     );
 }

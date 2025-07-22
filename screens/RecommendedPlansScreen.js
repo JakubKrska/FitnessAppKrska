@@ -55,7 +55,10 @@ const RecommendedPlansScreen = ({route, navigation}) => {
             });
 
             Alert.alert("Plán přidán", "Doporučený plán byl přidán mezi tvé tréninky.");
-            navigation.navigate("Dashboard");
+            navigation.reset({
+                index: 0,
+                routes: [{ name: "Dashboard" }],
+            });
         } catch (err) {
             Alert.alert("Chyba", typeof err === "string" ? err : "Nepodařilo se přidat plán.");
         }

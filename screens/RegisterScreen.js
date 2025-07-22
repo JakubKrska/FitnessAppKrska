@@ -3,18 +3,19 @@ import {
     View,
     Text,
     StyleSheet,
-    Alert,
     TouchableOpacity,
+    Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialIcons } from "@expo/vector-icons";
-
 import AppTextInput from "../components/ui/AppTextInput";
 import PasswordInput from "../components/ui/PasswordInput";
 import AppButton from "../components/ui/AppButton";
 import AppTitle from "../components/ui/AppTitle";
 import { colors, spacing } from "../components/ui/theme";
 import { apiFetch } from "../api";
+import { decode as atob } from "base-64"; // <--- fix
 
 const RegisterScreen = () => {
     const [name, setName] = useState("");
@@ -31,22 +32,61 @@ const RegisterScreen = () => {
         }
 
         try {
+            console.log("1. Registrace start");
             await apiFetch("/authUtils/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name, email, password }),
             });
 
-            Alert.alert("Úspěšná registrace", "Nyní se můžeš přihlásit.");
-            navigation.navigate("Login");
+            console.log("2. Login...");
+            const response = await apiFetch("/authUtils/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+            });
+
+            console.log("3. Login response", response);
+            if (!response.token) {
+                console.error("❌ Token není v odpovědi:", response);
+                throw new Error("Chybí token v odpovědi");
+            }
+
+            // Pokud atob selhává:
+            let payload = {};
+            try {
+                const base64 = response.token.split(".")[1];
+                payload = JSON.parse(atob(base64));
+            } catch (decodeErr) {
+                console.error("❌ Chyba při dekódování tokenu", decodeErr);
+                throw new Error("Neplatný token");
+            }
+
+            await AsyncStorage.setItem("token", response.token);
+            await AsyncStorage.setItem("userId", payload.userId);
+            await AsyncStorage.setItem("hasSeenWelcome", "true");
+
+            console.log("4. Naviguji na MainApp");
+
+            navigation.reset({
+                index: 0,
+                routes: [{ name: "OnboardingGoal" }],
+            });
         } catch (err) {
-            setError(typeof err === "string" ? err : "Registrace selhala");
+            console.error("❌ REGISTRACE ERROR:", err);
+            setError("Registrace selhala: " + (err.message || "Neznámá chyba"));
         }
     };
 
+
     return (
         <View style={styles.container}>
-            <MaterialIcons name="person-add" size={60} color={colors.primary} style={styles.icon} />
+            <MaterialIcons
+                name="person-add"
+                size={60}
+                color={colors.primary}
+                style={styles.icon}
+            />
             <AppTitle>Registrace</AppTitle>
 
             <AppTextInput
