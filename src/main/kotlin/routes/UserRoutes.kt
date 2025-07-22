@@ -20,7 +20,6 @@ import requests.RegisterRequest
 import responses.toResponse
 import java.time.Instant
 
-
 @Serializable
 data class LoginRequest(val email: String, val password: String)
 
@@ -37,7 +36,7 @@ fun Route.userRoutes(userRepository: UserRepository) {
 
             val existingUser = userRepository.findUserByEmail(request.email)
             if (existingUser != null) {
-                call.respond(HttpStatusCode.Conflict, "models.User already exists")
+                call.respond(HttpStatusCode.Conflict, "User already exists")
                 return@post
             }
 
@@ -78,7 +77,6 @@ fun Route.userRoutes(userRepository: UserRepository) {
     authenticate("authUtils-jwt") {
         route("/users") {
 
-            // Jen admin může listovat všechny uživatele
             get {
                 val principal = call.principal<JWTPrincipal>()
                 if (!isAdmin(principal)) {
@@ -90,7 +88,6 @@ fun Route.userRoutes(userRepository: UserRepository) {
                 call.respond(users)
             }
 
-            // Získání detailu uživatele (pouze sám nebo admin)
             get("/{id}") {
                 val id = call.parameters["id"]?.let { UUID.fromString(it) }
                 val principal = call.principal<JWTPrincipal>()
@@ -110,7 +107,7 @@ fun Route.userRoutes(userRepository: UserRepository) {
                 if (user != null) {
                     call.respond(user.toResponse())
                 } else {
-                    call.respond(HttpStatusCode.NotFound, "models.User not found")
+                    call.respond(HttpStatusCode.NotFound, "User not found")
                 }
             }
 
@@ -118,23 +115,53 @@ fun Route.userRoutes(userRepository: UserRepository) {
                 val principal = call.principal<JWTPrincipal>()
                 val userId = principal?.getUserId()
 
-                println("JWT userId = $userId")
-
                 if (userId == null) {
                     call.respond(HttpStatusCode.Unauthorized, "Not authorized")
                     return@get
                 }
 
                 val user = userRepository.getUserById(userId)
-
-                println("User from DB = $user")
-
                 if (user != null) {
                     call.respond(user.toResponse())
                 } else {
                     call.respond(HttpStatusCode.NotFound, "User not found")
                 }
             }
+
+            // 🔧 Nový endpoint pro onboarding: POST /users/me/goal
+            post("/me/goal") {
+                val principal = call.principal<JWTPrincipal>()
+                val userId = principal?.getUserId()
+
+                if (userId == null) {
+                    call.respond(HttpStatusCode.Unauthorized, "Not authorized")
+                    return@post
+                }
+
+                val body = call.receive<Map<String, String?>>()
+                val goal = body["goal"]
+
+                if (goal.isNullOrBlank()) {
+                    call.respond(HttpStatusCode.BadRequest, "Chybějící nebo neplatný cíl")
+                    return@post
+                }
+
+                val user = userRepository.getUserById(userId)
+                if (user == null) {
+                    call.respond(HttpStatusCode.NotFound, "Uživatel nenalezen")
+                    return@post
+                }
+
+                val updated = user.copy(goal = goal)
+                val success = userRepository.updateUser(userId, updated, null)
+
+                if (success) {
+                    call.respond(HttpStatusCode.OK, mapOf("success" to true))
+                } else {
+                    call.respond(HttpStatusCode.InternalServerError, "Nepodařilo se uložit cíl")
+                }
+            }
+
             patch("/me") {
                 val principal = call.principal<JWTPrincipal>()
                 val userId = principal?.getUserId()
@@ -168,7 +195,6 @@ fun Route.userRoutes(userRepository: UserRepository) {
                 }
             }
 
-            // Úprava uživatele (pouze sám)
             put("/{id}") {
                 val id = call.parameters["id"]?.let { UUID.fromString(it) }
                 val principal = call.principal<JWTPrincipal>()
@@ -188,7 +214,7 @@ fun Route.userRoutes(userRepository: UserRepository) {
 
                 val existing = userRepository.getUserById(id)
                 if (existing == null) {
-                    call.respond(HttpStatusCode.NotFound, "models.User not found")
+                    call.respond(HttpStatusCode.NotFound, "User not found")
                     return@put
                 }
 
@@ -196,13 +222,12 @@ fun Route.userRoutes(userRepository: UserRepository) {
                 val success = userRepository.updateUser(id, updatedUser, request.plainPassword)
 
                 if (success) {
-                    call.respond(HttpStatusCode.OK, "models.User updated")
+                    call.respond(HttpStatusCode.OK, "User updated")
                 } else {
                     call.respond(HttpStatusCode.InternalServerError, "Failed to update user")
                 }
             }
 
-            // Smazání uživatele (pouze admin)
             delete("/{id}") {
                 val principal = call.principal<JWTPrincipal>()
                 if (!isAdmin(principal)) {
@@ -218,13 +243,11 @@ fun Route.userRoutes(userRepository: UserRepository) {
 
                 val success = userRepository.deleteUser(id)
                 if (success) {
-                    call.respond(HttpStatusCode.OK, "models.User deleted")
+                    call.respond(HttpStatusCode.OK, "User deleted")
                 } else {
-                    call.respond(HttpStatusCode.NotFound, "models.User not found")
+                    call.respond(HttpStatusCode.NotFound, "User not found")
                 }
             }
-
         }
     }
-
 }
