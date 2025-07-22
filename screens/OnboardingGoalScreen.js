@@ -28,13 +28,13 @@ const OnboardingGoalScreen = ({ navigation }) => {
 
         try {
             if (selectedGoal) {
-                await apiFetch("/users/me", {
-                    method: "PATCH",
+                await apiFetch("/users/me/goal", {
+                    method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
                     },
-                    body: JSON.stringify({ goal: selectedGoal }),
+                    body: JSON.stringify({ goal: selectedGoal || "" }),
                 });
             }
 
