@@ -5,8 +5,6 @@ import {MaterialIcons, Ionicons} from "@expo/vector-icons";
 
 import DashboardStackNavigator from "./DashboardStackNavigator";
 import WorkoutPlanManagerScreen from "../screens/WorkoutPlanManagerScreen";
-import LoginScreen from "../screens/LoginScreen";
-import RegisterScreen from "../screens/RegisterScreen";
 import ProfileScreen from '../screens/ProfileScreen';
 import ExerciseManagerScreen from "../screens/ExerciseManagerScreen";
 import WorkoutHistoryScreen from "../screens/WorkoutHistoryScreen";
@@ -47,20 +45,13 @@ const BottomTabNavigator = () => {
                 tabBarLabelStyle: {fontSize: 12},
             })}
         >
-            {isLoggedIn ? (
+            {isLoggedIn && (
                 <>
-                    <Tab.Screen name="Dashboard" component={DashboardStackNavigator}/>
-                    <Tab.Screen name="Plány" component={WorkoutPlanManagerScreen}/>
-                    <Tab.Screen name="Cviky" component={ExerciseManagerScreen}/>
-                    <Tab.Screen name="Historie" component={WorkoutHistoryScreen}/>
-                    <Tab.Screen name="Profil" component={ProfileScreen}/>
-
-                </>
-            ) : (
-                <>
-                    <Tab.Screen name="Přihlásit se" component={LoginScreen}/>
-                    <Tab.Screen name="Registrovat se" component={RegisterScreen}/>
-
+                    <Tab.Screen name="Dashboard" component={DashboardStackNavigator} />
+                    <Tab.Screen name="Plány" component={WorkoutPlanManagerScreen} />
+                    <Tab.Screen name="Cviky" component={ExerciseManagerScreen} />
+                    <Tab.Screen name="Historie" component={WorkoutHistoryScreen} />
+                    <Tab.Screen name="Profil" component={ProfileScreen} />
                 </>
             )}
         </Tab.Navigator>

@@ -1,5 +1,7 @@
-import { API_URL } from '@env';
+import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const { API_URL } = Constants.expoConfig.extra;
 
 export const apiFetch = async (endpoint, options = {}) => {
     const token = await AsyncStorage.getItem("token");
@@ -9,6 +11,8 @@ export const apiFetch = async (endpoint, options = {}) => {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options.headers,
     };
+
+    console.log("Volám endpoint:", `${API_URL}${endpoint}`);
 
     const res = await fetch(`${API_URL}${endpoint}`, {
         ...options,

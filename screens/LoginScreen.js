@@ -1,25 +1,25 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
     View,
     Text,
     StyleSheet,
     TouchableOpacity,
-    Pressable,
 } from "react-native";
-import {useNavigation, useRoute} from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {MaterialIcons} from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
+
 import AppTextInput from "../components/ui/AppTextInput";
+import PasswordInput from "../components/ui/PasswordInput";
 import AppButton from "../components/ui/AppButton";
 import AppTitle from "../components/ui/AppTitle";
-import {colors, spacing} from "../components/ui/theme";
+import { colors, spacing } from "../components/ui/theme";
 import { apiFetch } from "../api";
 
 const LoginScreen = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
-    const [showPassword, setShowPassword] = useState(false);
 
     const navigation = useNavigation();
     const route = useRoute();
@@ -34,8 +34,8 @@ const LoginScreen = () => {
         try {
             const response = await apiFetch("/authUtils/login", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({email, password}),
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
             });
 
             await AsyncStorage.setItem("token", response.token);
@@ -49,7 +49,7 @@ const LoginScreen = () => {
 
     return (
         <View style={styles.container}>
-            <MaterialIcons name="fitness-center" size={60} color={colors.primary} style={styles.icon}/>
+            <MaterialIcons name="fitness-center" size={60} color={colors.primary} style={styles.icon} />
             <AppTitle>Přihlášení</AppTitle>
 
             <AppTextInput
@@ -60,28 +60,19 @@ const LoginScreen = () => {
                     setError(null);
                 }}
             />
-            <View style={styles.passwordRow}>
-                <AppTextInput
-                    placeholder="Heslo"
-                    value={password}
-                    onChangeText={(text) => {
-                        setPassword(text);
-                        setError(null);
-                    }}
-                    secureTextEntry={!showPassword}
-                    style={{flex: 1}}
-                />
-                <Pressable onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
-                    <MaterialIcons
-                        name={showPassword ? "visibility" : "visibility-off"}
-                        size={24}
-                        color={colors.gray}
-                    />
-                </Pressable>
-            </View>
+
+            <PasswordInput
+                placeholder="Heslo"
+                value={password}
+                onChangeText={(text) => {
+                    setPassword(text);
+                    setError(null);
+                }}
+            />
+
             {error && <Text style={styles.error}>{error}</Text>}
 
-            <AppButton title="Přihlásit se" onPress={handleLogin}/>
+            <AppButton title="Přihlásit se" onPress={handleLogin} />
 
             <TouchableOpacity onPress={() => navigation.navigate("Register")}>
                 <Text style={styles.link}>Nemáš účet? Zaregistruj se</Text>
@@ -110,13 +101,6 @@ const styles = StyleSheet.create({
         color: colors.danger,
         marginBottom: spacing.small,
         textAlign: "center",
-    },
-    passwordRow: {
-        flexDirection: "row",
-        alignItems: "center",
-    },
-    eyeIcon: {
-        padding: spacing.small,
     },
 });
 

@@ -1,25 +1,26 @@
-// components/AppTextInput.js
-import React from 'react';
-import {TextInput, StyleSheet} from 'react-native';
-import {colors, spacing, borderRadius} from './theme';
+import React from "react";
+import { TextInput, StyleSheet } from "react-native";
+import { colors, spacing } from "./theme";
 
-const AppTextInput = (props) => (
-    <TextInput
-        style={styles.input}
-        placeholderTextColor={colors.placeholder}
-        {...props}
-    />
-);
+const AppTextInput = ({ style, ...props }) => {
+    return (
+        <TextInput
+            style={[styles.input, style]}
+            placeholderTextColor={colors.gray}
+            {...props}
+        />
+    );
+};
 
 const styles = StyleSheet.create({
     input: {
-        borderWidth: 1,
-        borderColor: colors.gray,
-        borderRadius: borderRadius.small,
-        padding: spacing.small,
+        backgroundColor: "#fff",
+        padding: spacing.medium,
         marginBottom: spacing.medium,
-        backgroundColor: colors.white,
-        color: colors.text,
+        borderRadius: 6,
+        fontSize: 16,
+        borderWidth: 1,
+        borderColor: colors.border || "#ddd",
     },
 });
 

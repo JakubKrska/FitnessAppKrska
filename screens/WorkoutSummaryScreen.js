@@ -7,7 +7,7 @@ import Toast from 'react-native-toast-message';
 import BadgeDetailModal from '../components/BadgeDetailModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {v4 as uuidv4} from 'uuid';
-import apiFetch from '../api';
+import {apiFetch} from '../api';
 
 const WorkoutSummaryScreen = ({route, navigation}) => {
     const {completedAt, planName, exercisesCompleted, totalSets, totalReps, userId, planId} = route.params;

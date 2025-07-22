@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, StyleSheet, Image } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { apiFetch } from "../api"; // Uprav cestu podle tvé struktury
+import { apiFetch } from "../api";
 
 const BadgesScreen = () => {
     const [badges, setBadges] = useState([]);

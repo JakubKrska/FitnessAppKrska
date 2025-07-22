@@ -11,7 +11,7 @@ import AppTitle from "../components/ui/AppTitle";
 import AppCard from "../components/ui/AppCard";
 import AppButton from "../components/ui/AppButton";
 import {colors, spacing} from "../components/ui/theme";
-import apiFetch from "../api";
+import {apiFetch} from "../api";
 
 const motivationalPhrases = [
     "Skvělá práce, jen tak dál!",

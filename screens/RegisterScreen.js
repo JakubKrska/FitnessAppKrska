@@ -1,26 +1,25 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
     View,
     Text,
     StyleSheet,
     Alert,
     TouchableOpacity,
-    Pressable,
 } from "react-native";
-import {useNavigation} from "@react-navigation/native";
-import {MaterialIcons} from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { MaterialIcons } from "@expo/vector-icons";
 
 import AppTextInput from "../components/ui/AppTextInput";
+import PasswordInput from "../components/ui/PasswordInput";
 import AppButton from "../components/ui/AppButton";
 import AppTitle from "../components/ui/AppTitle";
-import {colors, spacing} from "../components/ui/theme";
+import { colors, spacing } from "../components/ui/theme";
 import { apiFetch } from "../api";
 
 const RegisterScreen = () => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState(null);
 
     const navigation = useNavigation();
@@ -34,8 +33,8 @@ const RegisterScreen = () => {
         try {
             await apiFetch("/authUtils/register", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({name, email, password}),
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, password }),
             });
 
             Alert.alert("Úspěšná registrace", "Nyní se můžeš přihlásit.");
@@ -47,7 +46,7 @@ const RegisterScreen = () => {
 
     return (
         <View style={styles.container}>
-            <MaterialIcons name="person-add" size={60} color={colors.primary} style={styles.icon}/>
+            <MaterialIcons name="person-add" size={60} color={colors.primary} style={styles.icon} />
             <AppTitle>Registrace</AppTitle>
 
             <AppTextInput
@@ -58,6 +57,7 @@ const RegisterScreen = () => {
                     setError(null);
                 }}
             />
+
             <AppTextInput
                 placeholder="Email"
                 value={email}
@@ -66,28 +66,19 @@ const RegisterScreen = () => {
                     setError(null);
                 }}
             />
-            <View style={styles.passwordRow}>
-                <AppTextInput
-                    placeholder="Heslo"
-                    value={password}
-                    onChangeText={(text) => {
-                        setPassword(text);
-                        setError(null);
-                    }}
-                    secureTextEntry={!showPassword}
-                    style={{flex: 1}}
-                />
-                <Pressable onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
-                    <MaterialIcons
-                        name={showPassword ? "visibility" : "visibility-off"}
-                        size={24}
-                        color={colors.gray}
-                    />
-                </Pressable>
-            </View>
+
+            <PasswordInput
+                placeholder="Heslo"
+                value={password}
+                onChangeText={(text) => {
+                    setPassword(text);
+                    setError(null);
+                }}
+            />
+
             {error && <Text style={styles.error}>{error}</Text>}
 
-            <AppButton title="Registrovat" onPress={handleRegister}/>
+            <AppButton title="Registrovat" onPress={handleRegister} />
 
             <TouchableOpacity onPress={() => navigation.navigate("Login")}>
                 <Text style={styles.link}>Už máš účet? Přihlaš se</Text>
@@ -116,13 +107,6 @@ const styles = StyleSheet.create({
         color: colors.danger,
         marginBottom: spacing.small,
         textAlign: "center",
-    },
-    passwordRow: {
-        flexDirection: "row",
-        alignItems: "center",
-    },
-    eyeIcon: {
-        padding: spacing.small,
     },
 });
 
