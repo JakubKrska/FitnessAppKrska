@@ -27,7 +27,8 @@ fun Application.module() {
 // Povolení CORS pro vývoj (React frontend)
 fun Application.configureCORS() {
     install(CORS) {
-        anyHost()
+        allowHost("localhost:19006", schemes = listOf("http")) // Expo web dev
+        allowHost("fitnessappkrska-production.up.railway.app", schemes = listOf("https"))
         allowCredentials = true
         allowMethod(HttpMethod.Get)
         allowMethod(HttpMethod.Post)

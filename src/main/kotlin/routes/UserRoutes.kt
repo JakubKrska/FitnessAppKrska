@@ -58,7 +58,7 @@ fun Route.userRoutes(userRepository: UserRepository) {
                 role = "USER"
             )
             userRepository.addUser(newUser)
-            call.respond(HttpStatusCode.Created, "models.User registered")
+            call.respond(HttpStatusCode.Created, mapOf("message" to "User registered"))
         }
 
         post("/login") {
