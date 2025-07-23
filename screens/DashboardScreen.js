@@ -40,7 +40,7 @@ const DashboardScreen = () => {
                 const bmiVal = (data.weight / ((data.height / 100) ** 2)).toFixed(1);
                 setBmi(bmiVal);
             }
-        } catch {
+        } catch {k
             navigation.navigate("Login");
         }
     }, []);
@@ -64,7 +64,7 @@ const DashboardScreen = () => {
             const plans = await apiFetch("/workout-plans", {
                 headers: {Authorization: `Bearer ${token}`},
             });
-            setUserPlans(plans.filter(p => p.userId === userId));
+            setUserPlans(plans.filter(p => p.userId?.toString() === userId));
         } catch (e) {
             console.error("Chyba načítání plánů:", e);
         }
@@ -94,7 +94,7 @@ const DashboardScreen = () => {
 
     return (
         <ScrollView style={styles.container}>
-            <AppTitle>Dashboard</AppTitle>
+
 
             <AppTitle>Tvé pokroky</AppTitle>
             {userData && (
@@ -103,7 +103,7 @@ const DashboardScreen = () => {
                     <Text>Cíl: {userData.goal}</Text>
                     <Text>Výška: {userData.height} cm</Text>
                     <Text>Váha: {userData.weight} kg</Text>
-                    <Text>BMI: {bmi} ({getBMIStatus(bmi)})</Text>
+                    <Text>BMI: {bmi ? `${bmi} (${getBMIStatus(bmi)})` : "Zadej výšku a váhu v profilu"}</Text>
                     <Text>Úroveň: {userData.experienceLevel}</Text>
                 </AppCard>
             )}

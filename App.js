@@ -11,7 +11,8 @@ import RegisterScreen from './screens/RegisterScreen';
 import WelcomeScreen from './screens/WelcomeScreen';
 import OnboardingGoalScreen from './screens/OnboardingGoalScreen';
 import RecommendedPlansScreen from './screens/RecommendedPlansScreen';
-import BottomTabNavigator from './navigation/BottomTabNavigator'; // obsahuje Dashboard
+import BottomTabNavigator from './navigation/BottomTabNavigator';
+import DashboardScreen from "./screens/DashboardScreen"; // obsahuje Dashboard
 
 const Stack = createNativeStackNavigator();
 

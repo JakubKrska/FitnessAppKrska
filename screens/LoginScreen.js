@@ -23,7 +23,7 @@ const LoginScreen = () => {
 
     const navigation = useNavigation();
     const route = useRoute();
-    const redirectTo = route.params?.redirectTo || "MainApp";
+    const redirectTo = route.params?.redirectTo || "Dashboard";
 
     const handleLogin = async () => {
         if (!email || !password) {

@@ -28,21 +28,24 @@ const OnboardingGoalScreen = ({ navigation }) => {
 
         try {
             if (selectedGoal) {
-                await apiFetch("/users/me/goal", {
-                    method: "POST",
+                const response = await apiFetch("/users/me", {
+                    method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({ goal: selectedGoal }),
                 });
+
+                console.log("Goal uložen:", response);
             }
 
-            // Přesměrování rovnou na dashboard
+            // Přesměrování na dashboard
             navigation.replace("Dashboard");
 
         } catch (err) {
-            Alert.alert("Chyba při ukládání", typeof err === "string" ? err : "Neznámá chyba.");
+            console.error("Chyba při ukládání goal:", err);
+            Alert.alert("Chyba", "Nepodařilo se uložit cíl.");
         }
     };
 
@@ -58,10 +61,7 @@ const OnboardingGoalScreen = ({ navigation }) => {
                 <AppButton
                     key={goal}
                     title={goal}
-                    onPress={() => {
-                        console.log("Kliknuto:", goal);
-                        setSelectedGoal(goal);
-                    }}
+                    onPress={() => setSelectedGoal(goal)}
                     style={{
                         backgroundColor: selectedGoal === goal ? colors.primary : colors.card,
                         marginBottom: spacing.small,

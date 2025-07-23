@@ -86,7 +86,7 @@ const ProfileScreen = ({navigation}) => {
                 <Text style={styles.label}>Pohlaví: <Text style={styles.value}>{user.gender ?? '–'}</Text></Text>
                 <Text style={styles.label}>Cíl: <Text style={styles.value}>{user.goal}</Text></Text>
                 <Text style={styles.label}>Úroveň: <Text style={styles.value}>{user.experienceLevel}</Text></Text>
-                <Text style={styles.label}>Role: <Text style={styles.value}>{user.role}</Text></Text>
+
             </AppCard>
 
             <AppButton title="Upravit profil" onPress={() => navigation.navigate("EditProfile")}/>
@@ -101,9 +101,7 @@ const ProfileScreen = ({navigation}) => {
                 contentContainerStyle={styles.badgeList}
             />
 
-            <View style={{marginTop: spacing.large}}>
-                <AppButton title="Zpět na Dashboard" onPress={() => navigation.navigate("Dashboard")}/>
-            </View>
+
         </ScrollView>
     );
 };

@@ -29,7 +29,7 @@ const DashboardStackNavigator = () => {
                 <Stack.Screen name="Register" component={RegisterScreen} options={{title: "Register"}} />
                 <Stack.Screen name="MainApp" component={BottomTabNavigator} options={{title: "Main"}} />
                 <Stack.Screen name="OnboardingGoal" component={OnboardingGoalScreen} options={{title: "Onboard"}} />
-            <Stack.Screen name="DashboardHome" component={DashboardScreen} options={{title: "Dashboard"}}/>
+            <Stack.Screen name="Dashboard" component={DashboardScreen} options={{title: "Dashboard"}}/>
             <Stack.Screen name="OnboardingGoal" component={OnboardingGoalScreen} options={{title: "Nastavení Cíle"}}/>
             <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{title: "Úprava profilu"}}/>
             <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{title: "Změna hesla"}}/>
