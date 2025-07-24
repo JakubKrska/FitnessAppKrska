@@ -130,7 +130,7 @@ const DashboardScreen = () => {
                 ))
             )}
 
-            <AppTitle>Historie cvičení</AppTitle>
+            <AppTitle>Poslední cvičení</AppTitle>
             {workoutHistory.length === 0 ? (
                 <Text>Žádné záznamy</Text>
             ) : (
