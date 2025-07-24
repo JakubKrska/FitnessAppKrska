@@ -17,7 +17,6 @@ import requests.UpdateUserRequest
 import requests.toUpdatedUser
 import java.util.*
 import requests.RegisterRequest
-import requests.UpdateWeightRequest
 import responses.toResponse
 import java.time.Instant
 
@@ -248,22 +247,6 @@ fun Route.userRoutes(userRepository: UserRepository) {
                 } else {
                     call.respond(HttpStatusCode.NotFound, "User not found")
                 }
-            }
-            put("/users/me/weight") {
-                val principal = call.principal<JWTPrincipal>() ?: return@put call.respond(HttpStatusCode.Unauthorized)
-                val userId = principal.getUserId() ?: return@put call.respond(HttpStatusCode.BadRequest)
-
-                val request = call.receive<UpdateWeightRequest>()
-                if (request.validate().isNotEmpty()) {
-                    return@put call.respond(HttpStatusCode.BadRequest, "Neplatná váha")
-                }
-
-                val user = userRepository.getUserById(userId)
-                    ?: return@put call.respond(HttpStatusCode.NotFound, "Uživatel nenalezen")
-
-                val updated = userRepository.updateUser(userId, user.copy(weight = request.weight), null)
-                if (updated) call.respond(HttpStatusCode.OK)
-                else call.respond(HttpStatusCode.InternalServerError)
             }
         }
     }
