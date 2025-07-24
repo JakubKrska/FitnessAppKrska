@@ -8,7 +8,7 @@ data class UpdateUserRequest(
     val name: String,
     val age: Int?,
     val height: Int?,
-    val weight: Int?,
+    val weight: Double?,
     val gender: String?,
     val goal: String,
     val experienceLevel: String,

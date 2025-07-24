@@ -9,7 +9,7 @@ object Users : Table("users") {
     val passwordHash = text("password_hash")
     val age = integer("age").nullable()
     val height = integer("height").nullable()
-    val weight = integer("weight").nullable()
+    val weight = double("weight").nullable()
     val gender = varchar("gender", 50).nullable()
     val goal = varchar("goal", 50)
     val experienceLevel = varchar("experience_level", 50)
