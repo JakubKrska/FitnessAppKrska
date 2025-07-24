@@ -96,22 +96,7 @@ fun Application.configureRouting() {
                 call.respond(HttpStatusCode.InternalServerError, "Nepodařilo se upravit profil")
             }
         }
-        put("/users/me/weight") {
-            val principal = call.principal<JWTPrincipal>() ?: return@put call.respond(HttpStatusCode.Unauthorized)
-            val userId = principal.getUserId() ?: return@put call.respond(HttpStatusCode.BadRequest)
 
-            val request = call.receive<UpdateWeightRequest>()
-            if (request.validate().isNotEmpty()) {
-                return@put call.respond(HttpStatusCode.BadRequest, "Neplatná váha")
-            }
-
-            val user = userRepository.getUserById(userId)
-                ?: return@put call.respond(HttpStatusCode.NotFound, "Uživatel nenalezen")
-
-            val updated = userRepository.updateUser(userId, user.copy(weight = request.weight), null)
-            if (updated) call.respond(HttpStatusCode.OK)
-            else call.respond(HttpStatusCode.InternalServerError)
-        }
         post("/users/change-password") {
             val principal = call.principal<JWTPrincipal>() ?: return@post call.respond(HttpStatusCode.Unauthorized)
             val userId = principal.getUserId() ?: return@post call.respond(HttpStatusCode.BadRequest)
@@ -251,6 +236,22 @@ fun Application.configureRouting() {
         authenticate("authUtils-jwt") {
             get("/protected") {
                 call.respondText("You are authenticated!")
+            }
+            put("/users/me/weight") {
+                val principal = call.principal<JWTPrincipal>() ?: return@put call.respond(HttpStatusCode.Unauthorized)
+                val userId = principal.getUserId() ?: return@put call.respond(HttpStatusCode.BadRequest)
+
+                val request = call.receive<UpdateWeightRequest>()
+                if (request.validate().isNotEmpty()) {
+                    return@put call.respond(HttpStatusCode.BadRequest, "Neplatná váha")
+                }
+
+                val user = userRepository.getUserById(userId)
+                    ?: return@put call.respond(HttpStatusCode.NotFound, "Uživatel nenalezen")
+
+                val updated = userRepository.updateUser(userId, user.copy(weight = request.weight), null)
+                if (updated) call.respond(HttpStatusCode.OK)
+                else call.respond(HttpStatusCode.InternalServerError)
             }
 
             get("/exercises/{id}") {
