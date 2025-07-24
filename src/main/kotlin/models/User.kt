@@ -14,6 +14,6 @@ data class User(
     val experienceLevel: String,
     val createdAt: String,
     val updatedAt: String,
-    val weight: Int?,
+    val weight: Double?,
     val role: String = "USER"
 )
