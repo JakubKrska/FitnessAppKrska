@@ -4,8 +4,6 @@ import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import DashboardScreen from "../screens/DashboardScreen";
 import EditProfileScreen from "../screens/EditProfileScreen";
 import ChangePasswordScreen from "../screens/ChangePasswordScreen";
-import WeightChartScreen from "../screens/WeightChartScreen";
-import WeightFormScreen from "../screens/WeightFormScreen";
 import WorkoutSessionScreen from "../screens/WorkoutSessionScreen";
 import WorkoutHistoryDetailScreen from "../screens/WorkoutHistoryDetailScreen";
 import PerformanceChartScreen from "../screens/PerformanceChartScreen";
@@ -18,6 +16,7 @@ import WelcomeScreen from "../screens/WelcomeScreen";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import BottomTabNavigator from "./BottomTabNavigator";
+import WeightScreen from "../screens/WeightScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -33,8 +32,7 @@ const DashboardStackNavigator = () => {
             <Stack.Screen name="OnboardingGoal" component={OnboardingGoalScreen} options={{title: "Nastavení Cíle"}}/>
             <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{title: "Úprava profilu"}}/>
             <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{title: "Změna hesla"}}/>
-            <Stack.Screen name="WeightChart" component={WeightChartScreen} options={{title: "Vývoj váhy"}}/>
-            <Stack.Screen name="WeightForm" component={WeightFormScreen} options={{title: "Zaznamenat váhu"}}/>
+            <Stack.Screen name="WeightScreen" component={WeightScreen} options={{title: "Vývoj váhy"}}/>
             <Stack.Screen name="WorkoutSession" component={WorkoutSessionScreen} options={{title: "Trénink"}}/>
             <Stack.Screen name="PerformanceChart" component={PerformanceChartScreen} options={{title: "Statistiky výkonu"}}/>
             <Stack.Screen name="WorkoutHistoryDetail" component={WorkoutHistoryDetailScreen} options={{title: "Detail tréninku"}}/>

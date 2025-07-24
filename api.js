@@ -31,8 +31,11 @@ export const apiFetch = async (endpoint, options = {}) => {
     }
 
     if (!res.ok) {
+        console.error("❌ API error:", {
+            status: res.status,
+            body: text
+        });
         const errorMessage = data?.message || text || "Chyba API";
-        console.error("❌ API error:", errorMessage);
         throw new Error(errorMessage);
     }
 

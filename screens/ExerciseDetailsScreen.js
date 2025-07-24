@@ -136,9 +136,12 @@ const ExerciseDetailsScreen = () => {
                     <Label title="Popis" value={exercise.description} multiline/>
                 )}
                 {exercise.imageUrl ? (
-                    <Image source={{uri: exercise.imageUrl}} style={styles.image}/>
+                    <Image source={{ uri: exercise.imageUrl }} style={styles.image} />
                 ) : (
-                    <Image source={require("../assets/placeholder.png")} style={styles.image}/>
+                    // <Image source={require("../assets/placeholder.png")} style={styles.image} />
+                    <View style={[styles.image, { justifyContent: 'center', alignItems: 'center', backgroundColor: colors.card }]}>
+                        <Text style={{ color: colors.gray }}>Bez obrázku</Text>
+                    </View>
                 )}
                 {exercise.authorId && (
                     <Text style={styles.footer}>

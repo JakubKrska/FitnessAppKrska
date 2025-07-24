@@ -40,7 +40,7 @@ const DashboardScreen = () => {
                 const bmiVal = (data.weight / ((data.height / 100) ** 2)).toFixed(1);
                 setBmi(bmiVal);
             }
-        } catch {k
+        } catch {
             navigation.navigate("Login");
         }
     }, []);
@@ -110,8 +110,8 @@ const DashboardScreen = () => {
 
             <AppTitle>Rychlé akce</AppTitle>
             <AppButton title="Upravit profil" onPress={() => navigation.navigate("EditProfile")}/>
-            <AppButton title="Vývoj váhy" onPress={() => navigation.navigate("WeightChart")}/>
-            <AppButton title="Zaznamenat váhu" onPress={() => navigation.navigate("WeightForm")}/>
+            <AppButton title="Vývoj váhy" onPress={() => navigation.navigate("WeightScreen")}/>
+
 
             <AppTitle>Tréninkové plány</AppTitle>
             {userPlans.length === 0 ? (

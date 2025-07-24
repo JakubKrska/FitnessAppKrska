@@ -23,7 +23,7 @@ const LoginScreen = () => {
 
     const navigation = useNavigation();
     const route = useRoute();
-    const redirectTo = route.params?.redirectTo || "Dashboard";
+    const redirectTo = route.params?.redirectTo || "MainTabs";
 
     const handleLogin = async () => {
         if (!email || !password) {
@@ -39,8 +39,9 @@ const LoginScreen = () => {
             });
 
             await AsyncStorage.setItem("token", response.token);
-            const payload = JSON.parse(atob(response.token.split(".")[1]));
+            const payload = JSON.parse(atob(response.token.split('.')[1]));
             await AsyncStorage.setItem("userId", payload.userId);
+            await AsyncStorage.setItem("tokenExp", payload.exp.toString());
             navigation.replace(redirectTo);
         } catch (err) {
             setError(typeof err === "string" ? err : "Přihlášení selhalo");

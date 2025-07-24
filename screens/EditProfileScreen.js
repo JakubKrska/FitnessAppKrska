@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import {
     ScrollView,
     Alert,
@@ -6,17 +6,15 @@ import {
     View,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {Picker} from "@react-native-picker/picker";
+import { Picker } from "@react-native-picker/picker";
 
 import AppTitle from "../components/ui/AppTitle";
 import AppTextInput from "../components/ui/AppTextInput";
 import AppButton from "../components/ui/AppButton";
-import {colors, spacing} from "../components/ui/theme";
+import { colors, spacing } from "../components/ui/theme";
 import { apiFetch } from "../api";
 
-const EditProfileScreen = ({route, navigation}) => {
-    const {user, onProfileUpdated} = route.params || {};
-
+const EditProfileScreen = ({ navigation }) => {
     const [formData, setFormData] = useState({
         name: "",
         plainPassword: "",
@@ -27,28 +25,45 @@ const EditProfileScreen = ({route, navigation}) => {
         goal: "",
         experienceLevel: "",
     });
+    const [userId, setUserId] = useState(null);
 
     useEffect(() => {
-        if (user) {
-            setFormData({
-                name: user.name || "",
-                plainPassword: "",
-                age: user.age?.toString() || "",
-                height: user.height?.toString() || "",
-                weight: user.weight?.toString() || "",
-                gender: user.gender || "",
-                goal: user.goal || "",
-                experienceLevel: user.experienceLevel || "",
-            });
-        }
-    }, [user]);
+        const fetchUser = async () => {
+            try {
+                const token = await AsyncStorage.getItem("token");
+                const data = await apiFetch("/users/me", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                setUserId(data.id); // <-- potřebujeme id pro PUT
+                setFormData({
+                    name: data.name || "",
+                    plainPassword: "",
+                    age: data.age?.toString() || "",
+                    height: data.height?.toString() || "",
+                    weight: data.weight?.toString() || "",
+                    gender: data.gender || "",
+                    goal: data.goal || "",
+                    experienceLevel: data.experienceLevel || "",
+                });
+            } catch (err) {
+                console.error("Chyba při načítání uživatele:", err);
+                Alert.alert("Nepodařilo se načíst uživatelská data.");
+                navigation.goBack();
+            }
+        };
+
+        fetchUser();
+    }, []);
 
     const handleChange = (field, value) => {
-        setFormData(prev => ({...prev, [field]: value}));
+        setFormData(prev => ({ ...prev, [field]: value }));
     };
 
     const validate = () => {
-        const {name, age, height, weight} = formData;
+        const { name, age, height, weight } = formData;
         if (!name || !age || !height || !weight) {
             Alert.alert("Chyba", "Vyplň prosím všechna povinná pole.");
             return false;
@@ -70,15 +85,19 @@ const EditProfileScreen = ({route, navigation}) => {
 
     const handleSubmit = async () => {
         if (!validate()) return;
+        if (!userId) {
+            Alert.alert("Chyba", "Chybí ID uživatele.");
+            return;
+        }
 
         try {
             const token = await AsyncStorage.getItem("token");
             const payload = {
                 ...formData,
-                ...(formData.plainPassword === "" && {plainPassword: undefined}),
+                ...(formData.plainPassword === "" && { plainPassword: undefined }),
             };
 
-            await apiFetch(`/users/${user.id}`, {
+            await apiFetch(`/users/${userId}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -88,7 +107,6 @@ const EditProfileScreen = ({route, navigation}) => {
             });
 
             Alert.alert("Profil upraven");
-            if (onProfileUpdated) onProfileUpdated();
             navigation.goBack();
         } catch (err) {
             console.error("Chyba:", err);
@@ -135,9 +153,9 @@ const EditProfileScreen = ({route, navigation}) => {
     );
 };
 
-const TextLabel = ({label}) => (
-    <View style={{marginTop: spacing.medium, marginBottom: spacing.small}}>
-        <AppTitle style={{fontSize: 16}}>{label}</AppTitle>
+const TextLabel = ({ label }) => (
+    <View style={{ marginTop: spacing.medium, marginBottom: spacing.small }}>
+        <AppTitle style={{ fontSize: 16 }}>{label}</AppTitle>
     </View>
 );
 
