@@ -11,6 +11,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import requests.ExerciseCommentRequest
 import requests.toModel
+import responses.toResponse
 import java.util.*
 
 fun Route.exerciseCommentsRoutes(repo: ExerciseCommentsRepository) {
@@ -26,7 +27,7 @@ fun Route.exerciseCommentsRoutes(repo: ExerciseCommentsRepository) {
                     return@get
                 }
 
-                val comments = repo.getAllByExerciseId(exerciseId)
+                val comments = repo.getAllByExerciseId(exerciseId).map { it.toResponse() }
                 call.respond(comments)
             }
 

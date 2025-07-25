@@ -135,15 +135,13 @@ data class ExerciseCommentResponse(
     @Contextual val userId: UUID,
     @Contextual val exerciseId: UUID,
     val commentText: String,
-    val createdAt: String
 )
 
 fun ExerciseComment.toResponse() = ExerciseCommentResponse(
     id = id,
     userId = userId,
     exerciseId = exerciseId,
-    commentText = commentText,
-    createdAt = createdAt.format(DateTimeFormatter.ISO_DATE_TIME)
+    commentText = commentText
 )
 
 @Serializable

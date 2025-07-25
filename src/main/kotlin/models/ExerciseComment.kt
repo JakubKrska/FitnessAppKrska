@@ -7,6 +7,5 @@ data class ExerciseComment(
     val userId: UUID,
     val exerciseId: UUID,
     val commentText: String,
-    val createdAt: String
 )
 

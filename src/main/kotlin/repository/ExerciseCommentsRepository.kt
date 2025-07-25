@@ -14,7 +14,6 @@ class ExerciseCommentsRepository {
         try {
             ExerciseComments
                 .select { ExerciseComments.exerciseId eq exerciseId }
-                .orderBy(ExerciseComments.createdAt, SortOrder.DESC)
                 .map { toComment(it) }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -53,6 +52,5 @@ class ExerciseCommentsRepository {
         userId = row[ExerciseComments.userId],
         exerciseId = row[ExerciseComments.exerciseId],
         commentText = row[ExerciseComments.commentText],
-        createdAt = row[ExerciseComments.createdAt].toString()
     )
 }

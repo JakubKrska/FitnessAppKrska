@@ -3,7 +3,6 @@ package requests
 import models.ExerciseComment
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import java.time.Instant
 import java.util.*
 
 @Serializable
@@ -24,6 +23,5 @@ fun ExerciseCommentRequest.toModel(userId: UUID): ExerciseComment {
         userId = userId,
         exerciseId = this.exerciseId,
         commentText = this.commentText,
-        createdAt = Instant.now().toString()
     )
 }
