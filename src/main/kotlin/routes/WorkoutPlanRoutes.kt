@@ -92,7 +92,7 @@ fun Route.workoutPlanRoutes(workoutPlanRepository: WorkoutPlanRepository) {
                 val existing = workoutPlanRepository.getWorkoutPlanById(id)
                 if (existing == null) return@delete call.respond(HttpStatusCode.NotFound)
 
-                if (existing.userId == null || !isOwnerOrAdmin(principal, existing.userId)) {
+                if (!isOwnerOrAdmin(principal, existing.userId ?: return@delete call.respond(HttpStatusCode.Forbidden))) {
                     return@delete call.respond(HttpStatusCode.Forbidden, "Not allowed to delete this workout plan")
                 }
 

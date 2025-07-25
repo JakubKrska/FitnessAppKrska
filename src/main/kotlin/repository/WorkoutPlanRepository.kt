@@ -61,10 +61,10 @@ class WorkoutPlanRepository {
     }
 
     fun deleteWorkoutPlan(id: UUID): Boolean = transaction {
-        WorkoutPlans.deleteWhere {
-            println(" Mazání plánu s ID: $id")
-            WorkoutPlans.id eq id
-        } > 0
+        println("Mazání plánu s ID: $id")
+        val result = WorkoutPlans.deleteWhere { WorkoutPlans.id eq id }
+        println("Smazáno řádků: $result")
+        result > 0
     }
 
     private fun toWorkoutPlan(row: ResultRow): WorkoutPlan = WorkoutPlan(
