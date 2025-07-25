@@ -3,8 +3,9 @@ package repository
 import models.WorkoutPlan
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import java.util.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+
 
 class WorkoutPlanRepository {
 
@@ -39,12 +40,12 @@ class WorkoutPlanRepository {
     fun addWorkoutPlan(plan: WorkoutPlan) = transaction {
         WorkoutPlans.insert {
             it[id] = plan.id
+            it[userId] = plan.userId
             it[name] = plan.name
             it[description] = plan.description
             it[experienceLevel] = plan.experienceLevel ?: ""
             it[goal] = plan.goal ?: ""
-            it[userId] = plan.userId
-            it[isDefault] = plan.isDefault ?: (plan.userId == null)
+            it[isDefault] = plan.isDefault
         }
     }
 
@@ -55,12 +56,15 @@ class WorkoutPlanRepository {
             it[experienceLevel] = updatedPlan.experienceLevel ?: ""
             it[goal] = updatedPlan.goal ?: ""
             it[userId] = updatedPlan.userId
-            it[isDefault] = updatedPlan.isDefault ?: false
+            it[isDefault] = updatedPlan.isDefault
         } > 0
     }
 
     fun deleteWorkoutPlan(id: UUID): Boolean = transaction {
-        WorkoutPlans.deleteWhere { WorkoutPlans.id eq id } > 0
+        WorkoutPlans.deleteWhere {
+            println(" Mazání plánu s ID: $id")
+            WorkoutPlans.id eq id
+        } > 0
     }
 
     private fun toWorkoutPlan(row: ResultRow): WorkoutPlan = WorkoutPlan(

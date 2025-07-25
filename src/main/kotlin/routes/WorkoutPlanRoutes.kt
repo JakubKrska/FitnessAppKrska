@@ -12,6 +12,7 @@ import io.ktor.server.routing.*
 import requests.WorkoutPlanRequest
 import java.util.*
 
+
 fun Route.workoutPlanRoutes(workoutPlanRepository: WorkoutPlanRepository) {
     authenticate("authUtils-jwt") {
         route("/workout-plans") {
@@ -79,6 +80,7 @@ fun Route.workoutPlanRoutes(workoutPlanRepository: WorkoutPlanRepository) {
             }
 
             delete("/{id}") {
+
                 val id = call.parameters["id"]?.let { runCatching { UUID.fromString(it) }.getOrNull() }
                 val principal = call.principal<JWTPrincipal>()
 
