@@ -20,6 +20,7 @@ import AppTitle from '../components/ui/AppTitle';
 import AppCard from '../components/ui/AppCard';
 import { colors, spacing, borderRadius } from '../components/ui/theme';
 import { apiFetch } from '../api';
+import { useNavigation } from '@react-navigation/native';
 
 const ExerciseManagerScreen = () => {
     const [token, setToken] = useState('');
@@ -31,6 +32,7 @@ const ExerciseManagerScreen = () => {
         difficulty: '',
     });
     const [modalVisible, setModalVisible] = useState(false);
+    const navigation = useNavigation();
 
     const [newExercise, setNewExercise] = useState({
         name: '',
@@ -179,7 +181,8 @@ const ExerciseManagerScreen = () => {
             <AppButton title="Přidat nový cvik" onPress={() => setModalVisible(true)} />
 
             {filteredExercises.map(ex => (
-                <AppCard key={ex.id}>
+                <TouchableOpacity key={ex.id} onPress={() => navigation.navigate("ExerciseDetails", { id: ex.id })}>
+                <AppCard>
                     <View style={styles.headerRow}>
                         <Text style={styles.title}>{ex.name}</Text>
                         <TouchableOpacity onPress={() => toggleFavorite(ex.id)}>
@@ -196,6 +199,7 @@ const ExerciseManagerScreen = () => {
                         <Image source={{ uri: ex.imageUrl }} style={styles.image} />
                     )}
                 </AppCard>
+                </TouchableOpacity>
             ))}
 
             {/* Modal Formulář */}
