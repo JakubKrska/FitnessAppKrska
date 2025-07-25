@@ -43,23 +43,25 @@ fun Route.favoriteExercisesRoutes(repo: FavoriteExercisesRepository) {
                 call.respond(HttpStatusCode.Created, "Added to favorites")
             }
 
-            // Smazání oblíbeného cviku
-            delete("/{id}") {
-                val id = call.parameters["id"]?.let(UUID::fromString)
+            // Odebrání oblíbeného cviku
+            delete("/by-exercise/{exerciseId}") {
+                val exerciseId = call.parameters["exerciseId"]?.let(UUID::fromString)
                 val userId = call.principal<JWTPrincipal>()?.getUserId()
 
-                if (id == null || userId == null) {
+                if (exerciseId == null || userId == null) {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID or unauthorized")
                     return@delete
                 }
 
-                val userFavorites = repo.getAllByUserId(userId)
-                if (userFavorites.none { it.id == id }) {
-                    call.respond(HttpStatusCode.Forbidden, "You don't have permission to delete this favorite")
+                val favorites = repo.getAllByUserId(userId)
+                val favorite = favorites.find { it.exerciseId == exerciseId }
+
+                if (favorite == null) {
+                    call.respond(HttpStatusCode.NotFound, "Favorite not found")
                     return@delete
                 }
 
-                val success = repo.deleteFavorite(id)
+                val success = repo.deleteFavorite(favorite.id)
                 call.respond(if (success) HttpStatusCode.OK else HttpStatusCode.InternalServerError)
             }
         }
