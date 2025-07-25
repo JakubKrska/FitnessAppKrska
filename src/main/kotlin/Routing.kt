@@ -269,15 +269,15 @@ fun Application.configureRouting() {
                 call.respond(HttpStatusCode.Created, "models.Exercise added")
             }
 
-            get("/workout-plans") {
-                call.respond(workoutPlanRepository.getAllWorkoutPlans())
-            }
-
-            post("/workout-plans") {
-                val plan = call.receive<WorkoutPlan>()
-                workoutPlanRepository.addWorkoutPlan(plan)
-                call.respond(HttpStatusCode.Created, "Workout plan added")
-            }
+//            get("/workout-plans") {
+//                call.respond(workoutPlanRepository.getAllWorkoutPlans())
+//            }
+//
+//            post("/workout-plans") {
+//                val plan = call.receive<WorkoutPlan>()
+//                workoutPlanRepository.addWorkoutPlan(plan)
+//                call.respond(HttpStatusCode.Created, "Workout plan added")
+//            }
             post("/workout-plans/{sourcePlanId}/copy") {
                 val principal = call.principal<JWTPrincipal>() ?: return@post call.respond(HttpStatusCode.Unauthorized)
                 val userId = principal.getUserId() ?: return@post call.respond(HttpStatusCode.BadRequest)
