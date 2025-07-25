@@ -6,13 +6,20 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import java.util.*
+import java.time.ZoneOffset // ✅ DŮLEŽITÝ IMPORT
 
 class ExerciseCommentsRepository {
 
     fun getAllByExerciseId(exerciseId: UUID): List<ExerciseComment> = transaction {
-        ExerciseComments.select { ExerciseComments.exerciseId eq exerciseId }
-            .orderBy(ExerciseComments.createdAt, SortOrder.DESC)
-            .map { toComment(it) }
+        try {
+            ExerciseComments
+                .select { ExerciseComments.exerciseId eq exerciseId }
+                .orderBy(ExerciseComments.createdAt, SortOrder.DESC)
+                .map { toComment(it) }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
     }
 
     fun getCommentById(id: UUID): ExerciseComment? = transaction {
@@ -46,6 +53,9 @@ class ExerciseCommentsRepository {
         userId = row[ExerciseComments.userId],
         exerciseId = row[ExerciseComments.exerciseId],
         commentText = row[ExerciseComments.commentText],
-        createdAt = row[ExerciseComments.createdAt].toString()
+        createdAt = row[ExerciseComments.createdAt]
+            .atZone(ZoneOffset.UTC)
+            .toInstant()
+            .toString()
     )
 }
