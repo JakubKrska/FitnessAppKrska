@@ -1,9 +1,8 @@
-import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.Table
 
 object WorkoutPlans : Table("workout_plans") {
     val id = uuid("id").autoGenerate().uniqueIndex()
-    val userId = uuid("user_id").references(Users.id, onDelete = ReferenceOption.CASCADE)
+    val userId = uuid("user_id").nullable()
     val name = varchar("name", 255)
     val description = text("description").nullable()
     val experienceLevel = varchar("experience_level", 50)

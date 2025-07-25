@@ -1,4 +1,4 @@
-package com.example.routes
+package routes
 
 import repository.WorkoutPlanRepository
 import authUtils.getUserId
@@ -13,17 +13,13 @@ import requests.WorkoutPlanRequest
 import java.util.*
 
 fun Route.workoutPlanRoutes(workoutPlanRepository: WorkoutPlanRepository) {
-
     authenticate("authUtils-jwt") {
         route("/workout-plans") {
 
-
             get {
-                val principal = call.principal<JWTPrincipal>()
-                val userId = principal?.getUserId()
-
+                val userId = call.principal<JWTPrincipal>()?.getUserId()
                 if (userId == null) {
-                    call.respond(HttpStatusCode.Unauthorized, "Unauthorized")
+                    call.respond(HttpStatusCode.Unauthorized)
                     return@get
                 }
 
@@ -32,42 +28,32 @@ fun Route.workoutPlanRoutes(workoutPlanRepository: WorkoutPlanRepository) {
             }
 
             get("/{id}") {
-                val id = call.parameters["id"]?.let { UUID.fromString(it) }
-                if (id == null) {
-                    call.respond(HttpStatusCode.BadRequest, "Invalid ID")
-                    return@get
-                }
+                val id = call.parameters["id"]?.let { runCatching { UUID.fromString(it) }.getOrNull() }
+                if (id == null) return@get call.respond(HttpStatusCode.BadRequest, "Invalid ID")
 
                 val plan = workoutPlanRepository.getWorkoutPlanById(id)
-                if (plan != null) {
-                    call.respond(plan)
-                } else {
-                    call.respond(HttpStatusCode.NotFound, "Workout plan not found")
-                }
+                if (plan != null) call.respond(plan)
+                else call.respond(HttpStatusCode.NotFound, "Workout plan not found")
             }
 
             post {
-                val principal = call.principal<JWTPrincipal>()
-                val userId = principal?.getUserId()
+                val userId = call.principal<JWTPrincipal>()?.getUserId()
                 if (userId == null) {
-                    call.respond(HttpStatusCode.Unauthorized, "Unauthorized")
+                    call.respond(HttpStatusCode.Unauthorized)
                     return@post
                 }
 
                 val request = call.receive<WorkoutPlanRequest>()
                 val errors = request.validate()
-                if (errors.isNotEmpty()) {
-                    call.respond(HttpStatusCode.BadRequest, errors)
-                    return@post
-                }
+                if (errors.isNotEmpty()) return@post call.respond(HttpStatusCode.BadRequest, errors)
 
-                val plan = request.toModel(userId)
-                workoutPlanRepository.addWorkoutPlan(plan)
+                val newPlan = request.toModel(userId)
+                workoutPlanRepository.addWorkoutPlan(newPlan)
                 call.respond(HttpStatusCode.Created, "Workout plan created")
             }
 
             put("/{id}") {
-                val id = call.parameters["id"]?.let(UUID::fromString)
+                val id = call.parameters["id"]?.let { runCatching { UUID.fromString(it) }.getOrNull() }
                 val principal = call.principal<JWTPrincipal>()
 
                 if (id == null || principal == null) {
@@ -76,34 +62,24 @@ fun Route.workoutPlanRoutes(workoutPlanRepository: WorkoutPlanRepository) {
                 }
 
                 val existing = workoutPlanRepository.getWorkoutPlanById(id)
-                if (existing == null) {
-                    call.respond(HttpStatusCode.NotFound, "Workout plan not found")
-                    return@put
-                }
+                if (existing == null) return@put call.respond(HttpStatusCode.NotFound)
 
                 if (existing.userId == null || !isOwnerOrAdmin(principal, existing.userId)) {
-                    call.respond(HttpStatusCode.Forbidden, "You are not allowed to edit this workout plan")
-                    return@put
+                    return@put call.respond(HttpStatusCode.Forbidden, "Not allowed to edit this workout plan")
                 }
 
                 val request = call.receive<WorkoutPlanRequest>()
                 val errors = request.validate()
-                if (errors.isNotEmpty()) {
-                    call.respond(HttpStatusCode.BadRequest, errors)
-                    return@put
-                }
+                if (errors.isNotEmpty()) return@put call.respond(HttpStatusCode.BadRequest, errors)
 
                 val updated = request.toModel(existing.userId).copy(id = existing.id)
                 val success = workoutPlanRepository.updateWorkoutPlan(id, updated)
 
-                call.respond(
-                    if (success) HttpStatusCode.OK
-                    else HttpStatusCode.InternalServerError
-                )
+                call.respond(if (success) HttpStatusCode.OK else HttpStatusCode.InternalServerError)
             }
 
             delete("/{id}") {
-                val id = call.parameters["id"]?.let(UUID::fromString)
+                val id = call.parameters["id"]?.let { runCatching { UUID.fromString(it) }.getOrNull() }
                 val principal = call.principal<JWTPrincipal>()
 
                 if (id == null || principal == null) {
@@ -112,21 +88,14 @@ fun Route.workoutPlanRoutes(workoutPlanRepository: WorkoutPlanRepository) {
                 }
 
                 val existing = workoutPlanRepository.getWorkoutPlanById(id)
-                if (existing == null) {
-                    call.respond(HttpStatusCode.NotFound, "Workout plan not found")
-                    return@delete
-                }
+                if (existing == null) return@delete call.respond(HttpStatusCode.NotFound)
 
                 if (existing.userId == null || !isOwnerOrAdmin(principal, existing.userId)) {
-                    call.respond(HttpStatusCode.Forbidden, "You are not allowed to delete this workout plan")
-                    return@delete
+                    return@delete call.respond(HttpStatusCode.Forbidden, "Not allowed to delete this workout plan")
                 }
 
                 val success = workoutPlanRepository.deleteWorkoutPlan(id)
-                call.respond(
-                    if (success) HttpStatusCode.OK
-                    else HttpStatusCode.InternalServerError
-                )
+                call.respond(if (success) HttpStatusCode.OK else HttpStatusCode.InternalServerError)
             }
         }
     }
