@@ -5,7 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
 import { apiFetch } from "./api";
 
-// Auth a onboarding
+// Auth and onboarding
 import WelcomeScreen from "./screens/WelcomeScreen";
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
@@ -89,6 +89,8 @@ export default function App() {
                     <Stack.Screen name="RemindersAdd" component={ReminderListScreen} />
                     <Stack.Screen name="ExerciseDetails" component={ExerciseDetailsScreen} />
                     <Stack.Screen name="WorkoutPlansScreen" component={WorkoutPlansScreen} />
+                    <Stack.Screen name="WorkoutPlanDetails" component={WorkoutPlanDetailsScreen} />
+
 
                 </Stack.Navigator>
             </NavigationContainer>
