@@ -83,7 +83,6 @@ const ProfileScreen = ({navigation}) => {
                 <Text style={styles.label}>Věk: <Text style={styles.value}>{user.age ?? '–'}</Text></Text>
                 <Text style={styles.label}>Výška: <Text style={styles.value}>{user.height ?? '–'} cm</Text></Text>
                 <Text style={styles.label}>Váha: <Text style={styles.value}>{user.weight ?? '–'} kg</Text></Text>
-                <Text style={styles.label}>Pohlaví: <Text style={styles.value}>{user.gender ?? '–'}</Text></Text>
                 <Text style={styles.label}>Cíl: <Text style={styles.value}>{user.goal}</Text></Text>
                 <Text style={styles.label}>Úroveň: <Text style={styles.value}>{user.experienceLevel}</Text></Text>
 

@@ -27,7 +27,6 @@ import WorkoutPlanDetailsScreen from "./screens/WorkoutPlanDetailsScreen";
 import ReminderFormScreen from "./screens/ReminderFormScreen";
 import ExerciseDetailsScreen from "./screens/ExerciseDetailsScreen";
 import ReminderListScreen from "./screens/ReminderListScreen";
-import WorkoutPlansScreen from "./screens/WorkoutPlansScreen";
 import WeightScreen from "./screens/WeightScreen";
 
 
@@ -88,7 +87,6 @@ export default function App() {
                     <Stack.Screen name="Reminders" component={ReminderFormScreen} />
                     <Stack.Screen name="RemindersAdd" component={ReminderListScreen} />
                     <Stack.Screen name="ExerciseDetails" component={ExerciseDetailsScreen} />
-                    <Stack.Screen name="WorkoutPlansScreen" component={WorkoutPlansScreen} />
                     <Stack.Screen name="WorkoutPlanDetails" component={WorkoutPlanDetailsScreen} />
 
 

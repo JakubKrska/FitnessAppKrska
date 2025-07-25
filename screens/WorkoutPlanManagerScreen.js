@@ -19,7 +19,7 @@ import { colors, spacing } from '../components/ui/theme';
 import { apiFetch } from '../api';
 
 const WorkoutPlanManagerScreen = ({ navigation }) => {
-    const scrollRef = useRef(); // ✅ ref pro skrolování nahoru
+    const scrollRef = useRef();
     const [plans, setPlans] = useState([]);
     const [formData, setFormData] = useState({
         name: '',
@@ -30,6 +30,8 @@ const WorkoutPlanManagerScreen = ({ navigation }) => {
     const [editingPlan, setEditingPlan] = useState(null);
     const [token, setToken] = useState('');
     const [userId, setUserId] = useState('');
+    const [filterGoal, setFilterGoal] = useState('');
+    const [filterLevel, setFilterLevel] = useState('');
 
     useEffect(() => {
         const loadCredentials = async () => {
@@ -86,22 +88,12 @@ const WorkoutPlanManagerScreen = ({ navigation }) => {
                 style: 'destructive',
                 onPress: async () => {
                     try {
-                        console.log("📡 Posílám DELETE:", id);
-
-                        const res = await apiFetch(`/workout-plans/${id}`, {
+                        await apiFetch(`/workout-plans/${id}`, {
                             method: 'DELETE',
                             headers: { Authorization: `Bearer ${token}` },
                         });
-
-                        console.log("📥 Response z mazání:", res);
-
-                        if (res?.status === 200 || res === true) {
-                            await fetchPlans();
-                        } else {
-                            Alert.alert('Chyba', 'Plán se nepodařilo smazat. Zkontroluj oprávnění.');
-                        }
+                        await fetchPlans();
                     } catch (err) {
-                        console.error('❌ Chyba při mazání plánu:', err);
                         Alert.alert('Chyba', err.message || 'Nepodařilo se smazat plán.');
                     }
                 }
@@ -117,20 +109,28 @@ const WorkoutPlanManagerScreen = ({ navigation }) => {
             experienceLevel: plan.experienceLevel || '',
             goal: plan.goal || '',
         });
-
         scrollRef.current?.scrollTo({ y: 0, animated: true });
         Alert.alert('Úprava plánu', `Upravuješ plán: ${plan.name}`);
     };
 
+    const filteredPlans = plans
+        .filter(p => (filterGoal ? p.goal === filterGoal : true))
+        .filter(p => (filterLevel ? p.experienceLevel === filterLevel : true))
+        .sort((a, b) => {
+            if (a.isDefault) return 1;
+            if (b.isDefault) return -1;
+            return 0;
+        });
+
     const renderPlan = ({ item }) => {
         const isOwner = item.userId === userId;
-
-        console.log("Plan:", item.name, "Plan userId:", item.userId, "Current userId:", userId);
-        console.log("Je vlastník:", isOwner);
+        const cardStyle = item.isDefault ? styles.defaultCard : null;
 
         return (
-            <AppCard>
-                <Text style={styles.titleText}>{item.name}</Text>
+            <AppCard style={cardStyle}>
+                <Text style={styles.titleText}>
+                    {item.name} {item.isDefault ? '(výchozí)' : ''}
+                </Text>
                 <Text>{item.experienceLevel} • {item.goal}</Text>
                 {item.description ? <Text style={styles.descText}>{item.description}</Text> : null}
 
@@ -145,10 +145,7 @@ const WorkoutPlanManagerScreen = ({ navigation }) => {
                         <AppButton
                             title="Smazat"
                             color={colors.danger}
-                            onPress={() => {
-                                console.log("🔴 Kliknuto na smazání plánu:", item.id);
-                                handleDelete(item.id);
-                            }}
+                            onPress={() => handleDelete(item.id)}
                         />
                     </>
                 )}
@@ -167,15 +164,41 @@ const WorkoutPlanManagerScreen = ({ navigation }) => {
     return (
         <ScrollView ref={scrollRef} contentContainerStyle={styles.container}>
             <AppTitle>
-                {editingPlan
-                    ? `Upravuješ plán: ${editingPlan.name}`
-                    : 'Přidat nový plán'}
+                {editingPlan ? `Upravuješ plán: ${editingPlan.name}` : 'Přidat nový plán'}
             </AppTitle>
 
+            {/* Filtrace */}
+            <View style={styles.filterSection}>
+                <Text style={styles.pickerLabel}>Filtruj cíl:</Text>
+                <Picker selectedValue={filterGoal} onValueChange={setFilterGoal}>
+                    <Picker.Item label="Vše" value="" />
+                    <Picker.Item label="Nabrat svaly" value="Nabrat svaly" />
+                    <Picker.Item label="Zhubnout" value="Zhubnout" />
+                    <Picker.Item label="Zlepšit kondici" value="Zlepšit kondici" />
+                    <Picker.Item label="Zdravotní důvody" value="Zdravotní důvody" />
+                    <Picker.Item label="Zvýšit sílu" value="Zvýšit sílu" />
+                </Picker>
+
+                <Text style={styles.pickerLabel}>Filtruj úroveň:</Text>
+                <Picker selectedValue={filterLevel} onValueChange={setFilterLevel}>
+                    <Picker.Item label="Vše" value="" />
+                    <Picker.Item label="Začátečník" value="Začátečník" />
+                    <Picker.Item label="Pokročilý" value="Pokročilý" />
+                    <Picker.Item label="Expert" value="Expert" />
+                </Picker>
+            </View>
+
+            {/* Formulář */}
             <AppTextInput
                 placeholder="Název plánu"
                 value={formData.name}
                 onChangeText={(text) => setFormData({ ...formData, name: text })}
+            />
+            <AppTextInput
+                placeholder="Popis plánu"
+                value={formData.description}
+                onChangeText={(text) => setFormData({ ...formData, description: text })}
+                multiline
             />
             <View style={styles.pickerWrapper}>
                 <Text style={styles.pickerLabel}>Úroveň</Text>
@@ -189,6 +212,7 @@ const WorkoutPlanManagerScreen = ({ navigation }) => {
                     <Picker.Item label="Expert" value="Expert" />
                 </Picker>
             </View>
+
             <View style={styles.pickerWrapper}>
                 <Text style={styles.pickerLabel}>Cíl</Text>
                 <Picker
@@ -196,21 +220,12 @@ const WorkoutPlanManagerScreen = ({ navigation }) => {
                     onValueChange={(val) => setFormData({ ...formData, goal: val })}
                 >
                     <Picker.Item label="-- Vyber cíl --" value="" />
-                    <Picker.Item label="Nabrat svaly" value="Nabrat svaly" />
                     <Picker.Item label="Zhubnout" value="Zhubnout" />
-                    <Picker.Item label="Zlepšit kondici" value="Zlepšit kondici" />
+                    <Picker.Item label="Nabrat svaly" value="Nabrat svaly" />
+                    <Picker.Item label="Zůstat fit" value="Zůstat fit" />
                     <Picker.Item label="Zdravotní důvody" value="Zdravotní důvody" />
-                    <Picker.Item label="Zvýšit sílu" value="Zvýšit sílu" />
                 </Picker>
             </View>
-            <AppTextInput
-                placeholder="Popis plánu"
-                value={formData.description}
-                onChangeText={(text) =>
-                    setFormData({ ...formData, description: text })
-                }
-                multiline
-            />
 
             <AppButton
                 title={editingPlan ? 'Uložit změny' : 'Přidat plán'}
@@ -229,10 +244,10 @@ const WorkoutPlanManagerScreen = ({ navigation }) => {
                 />
             )}
 
-            <AppTitle style={{ marginTop: spacing.large }}>Moje plány</AppTitle>
+            <AppTitle style={{ marginTop: spacing.large }}>Plány</AppTitle>
 
             <FlatList
-                data={plans}
+                data={filteredPlans}
                 keyExtractor={(item) => item.id}
                 renderItem={renderPlan}
                 contentContainerStyle={{ paddingBottom: spacing.large }}
@@ -261,19 +276,17 @@ const styles = StyleSheet.create({
         color: colors.gray,
         marginBottom: spacing.small,
     },
-    pickerWrapper: {
-        backgroundColor: colors.white,
-        borderColor: colors.gray,
-        borderWidth: 1,
-        borderRadius: 6,
-        marginBottom: spacing.medium,
-    },
     pickerLabel: {
-        marginTop: spacing.small,
-        marginLeft: spacing.small,
         fontWeight: 'bold',
-        color: colors.text,
+        marginTop: spacing.small,
+        marginBottom: spacing.small,
     },
+    defaultCard: {
+        backgroundColor: '#e5e5e5',
+    },
+    filterSection: {
+        marginBottom: spacing.large,
+    }
 });
 
 export default WorkoutPlanManagerScreen;
