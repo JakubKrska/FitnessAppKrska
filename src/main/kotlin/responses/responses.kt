@@ -10,6 +10,9 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 
+
+
+
 fun Instant.toIsoString(): String = this.atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT)
 
 @Serializable
@@ -140,7 +143,7 @@ fun ExerciseComment.toResponse() = ExerciseCommentResponse(
     userId = userId,
     exerciseId = exerciseId,
     commentText = commentText,
-    createdAt = Instant.parse(createdAt).toIsoString()
+    createdAt = createdAt.format(DateTimeFormatter.ISO_DATE_TIME)
 )
 
 @Serializable
