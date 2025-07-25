@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import java.util.*
-import java.time.ZoneOffset // ✅ DŮLEŽITÝ IMPORT
+
 
 class ExerciseCommentsRepository {
 
@@ -53,9 +53,6 @@ class ExerciseCommentsRepository {
         userId = row[ExerciseComments.userId],
         exerciseId = row[ExerciseComments.exerciseId],
         commentText = row[ExerciseComments.commentText],
-        createdAt = row[ExerciseComments.createdAt]
-            .atZone(ZoneOffset.UTC)
-            .toInstant()
-            .toString()
+        createdAt = row[ExerciseComments.createdAt].toString()
     )
 }
