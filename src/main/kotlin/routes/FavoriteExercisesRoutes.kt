@@ -10,6 +10,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import requests.FavoriteExerciseRequest
 import requests.toModel
+import responses.toResponse
 import java.util.*
 
 fun Route.favoriteExercisesRoutes(repo: FavoriteExercisesRepository) {
@@ -26,7 +27,7 @@ fun Route.favoriteExercisesRoutes(repo: FavoriteExercisesRepository) {
                 }
 
                 val favorites = repo.getAllByUserId(userId)
-                call.respond(favorites)
+                call.respond(favorites.map { it.toResponse() })
             }
 
             // Přidání oblíbeného cviku
