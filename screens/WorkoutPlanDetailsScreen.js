@@ -28,6 +28,7 @@ const WorkoutPlanDetailsScreen = ({ route }) => {
     const [exercises, setExercises] = useState([]);
     const [availableExercises, setAvailableExercises] = useState([]);
     const scrollRef = useRef();
+    const isValidUUID = (id) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
 
     const [formData, setFormData] = useState({
         exerciseId: '',
@@ -66,15 +67,12 @@ const WorkoutPlanDetailsScreen = ({ route }) => {
                     exerciseId: prefillExerciseId,
                 }));
                 setTimeout(() => {
-                    scrollRef.current?.scrollTo({
-                        y: 400,
-                        animated: true,
-                    });
+                    scrollRef.current?.scrollTo({ y: 400, animated: true });
                 }, 500);
             }
 
         } catch (e) {
-            console.error('Chyba:', e);
+            console.error('❌ Chyba při načítání:', e);
         } finally {
             setLoading(false);
         }
@@ -106,30 +104,51 @@ const WorkoutPlanDetailsScreen = ({ route }) => {
     };
 
     const handleDelete = async (id) => {
-        Alert.alert('Smazat?', 'Opravdu chceš odebrat tento cvik?', [
-            { text: 'Zrušit', style: 'cancel' },
-            {
-                text: 'Smazat',
-                onPress: async () => {
-                    await apiFetch(`/workout-exercises/${id}`, {
-                        method: 'DELETE',
-                        headers: { Authorization: `Bearer ${token}` },
-                    });
-                    await loadData();
-                },
-            },
-        ]);
+        try {
+            const token = await AsyncStorage.getItem("token");
+            const response = await apiFetch(`/workout-exercises/${id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (response.status === 200) {
+                await loadData(); // znovunačtení po mazání
+            } else {
+                console.warn("❌ Mazání selhalo:", response);
+                Alert.alert("Chyba", "Nepodařilo se odebrat cvik z plánu.");
+            }
+        } catch (err) {
+            console.error("❌ Chyba při DELETE:", err);
+        }
     };
 
     const renderItem = (item, drag) => {
+        console.log("🔍 Položka renderItem:", item);
+
+        if (!item.id || !isValidUUID(item.id)) {
+            console.warn("⚠️ Neplatné nebo chybějící item.id:", item);
+        }
+
         const full = availableExercises.find((e) => e.id === item.exerciseId);
+
         return (
             <AppCard onLongPress={drag}>
                 <Text style={styles.exerciseName}>{full?.name || 'Neznámý cvik'}</Text>
                 <Text>{item.sets}x{item.reps} • {item.restSeconds || 60}s pauza • Pořadí: {item.orderIndex}</Text>
-                <AppButton title="Odebrat" color={colors.danger} onPress={() => {
-                        console.log("🗑️ Odebrání cviku s ID:", item.id);
-                        handleDelete(item.id);
+                <AppButton
+                    title="Odebrat"
+                    color={colors.danger}
+                    onPress={async () => {
+                        try {
+                            await apiFetch(`/workout-exercises/${item.id}`, {
+                                method: "DELETE",
+                                headers: { Authorization: `Bearer ${token}` },
+                            });
+                            await loadData();
+                        } catch (err) {
+                            console.error("❌ Chyba při mazání cviku:", err);
+                            Alert.alert("Chyba", "Nepodařilo se odebrat cvik.");
+                        }
                     }}
                 />
             </AppCard>
