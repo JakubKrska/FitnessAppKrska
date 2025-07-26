@@ -106,25 +106,12 @@ fun Route.workoutExercisesRoutes(
                 call.respond(if (success) HttpStatusCode.OK else HttpStatusCode.InternalServerError)
             }
 
-            // DELETE: smazání cviku z plánu
+            // DELETE: odebrání cviku z plánu (bez kontroly vlastnictví)
             delete("/{id}") {
                 val id = call.parameters["id"]?.let(UUID::fromString)
-                val principal = call.principal<JWTPrincipal>()
 
-                if (id == null || principal == null) {
-                    call.respond(HttpStatusCode.BadRequest, "Invalid ID or unauthorized")
-                    return@delete
-                }
-
-                val existing = repo.getById(id)
-                val plan = existing?.let { workoutPlanRepo.getWorkoutPlanById(it.workoutPlanId) }
-
-                if (existing == null || plan == null || plan.userId == null || !isOwnerOrAdmin(
-                        principal,
-                        plan.userId
-                    )
-                ) {
-                    call.respond(HttpStatusCode.Forbidden, "You cannot delete this exercise")
+                if (id == null) {
+                    call.respond(HttpStatusCode.BadRequest, "Invalid ID")
                     return@delete
                 }
 
