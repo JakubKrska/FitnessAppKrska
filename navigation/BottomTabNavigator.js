@@ -3,7 +3,6 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 
-import DashboardStackNavigator from "./DashboardStackNavigator";
 import WorkoutPlanManagerScreen from "../screens/WorkoutPlanManagerScreen";
 import ProfileScreen from '../screens/ProfileScreen';
 import ExerciseManagerScreen from "../screens/ExerciseManagerScreen";

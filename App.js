@@ -28,6 +28,7 @@ import ReminderFormScreen from "./screens/ReminderFormScreen";
 import ExerciseDetailsScreen from "./screens/ExerciseDetailsScreen";
 import ReminderListScreen from "./screens/ReminderListScreen";
 import WeightScreen from "./screens/WeightScreen";
+import SelectPlanForExerciseScreen from "./screens/SelectPlanForExerciseScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -88,6 +89,8 @@ export default function App() {
                     <Stack.Screen name="RemindersAdd" component={ReminderListScreen} />
                     <Stack.Screen name="ExerciseDetails" component={ExerciseDetailsScreen} />
                     <Stack.Screen name="WorkoutPlanDetails" component={WorkoutPlanDetailsScreen} />
+                    <Stack.Screen name="SelectPlanForExercise" component={SelectPlanForExerciseScreen} />
+
 
 
                 </Stack.Navigator>

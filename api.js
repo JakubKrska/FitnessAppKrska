@@ -45,6 +45,9 @@ export const apiFetch = async (endpoint, options = {}) => {
             response: data,
         });
     }
+    if (options?.method === 'DELETE') {
+        console.log("📤 DELETE request to:", url);
+    }
 
     return data;
 };

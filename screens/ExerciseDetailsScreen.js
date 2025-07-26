@@ -18,6 +18,8 @@ import AppButton from '../components/ui/AppButton';
 import AppTextInput from '../components/ui/AppTextInput';
 import { colors, spacing } from '../components/ui/theme';
 import { apiFetch } from '../api';
+import { useNavigation } from '@react-navigation/native';
+
 
 const ExerciseDetailsScreen = () => {
     const route = useRoute();
@@ -27,6 +29,8 @@ const ExerciseDetailsScreen = () => {
     const [loading, setLoading] = useState(true);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
+    const navigation = useNavigation();
+
 
 
     useEffect(() => {
@@ -125,6 +129,10 @@ const ExerciseDetailsScreen = () => {
                     </View>
                 )}
             </AppCard>
+            <AppButton
+                title="Přidat do tréninkového plánu"
+                onPress={() => navigation.navigate('SelectPlanForExercise', { exerciseId: exercise.id })}
+            />
 
             <AppTitle style={{ marginTop: spacing.large }}>Komentáře</AppTitle>
             {comments.length === 0 ? (

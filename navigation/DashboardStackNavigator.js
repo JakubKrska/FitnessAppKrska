@@ -18,6 +18,7 @@ import RegisterScreen from "../screens/RegisterScreen";
 import BottomTabNavigator from "./BottomTabNavigator";
 import WeightScreen from "../screens/WeightScreen";
 import ExerciseDetailsScreen from "../screens/ExerciseDetailsScreen";
+import SelectPlanForExerciseScreen from "../screens/SelectPlanForExerciseScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -41,8 +42,9 @@ const DashboardStackNavigator = () => {
             <Stack.Screen name="AddReminder" component={ReminderFormScreen}/>
             <Stack.Screen name="WorkoutSummary" component={WorkoutSummaryScreen}/>
             <Stack.Screen name="Badges" component={BadgesScreen} options={{title: "Všechny odznaky"}}/>
-            <Stack.Screen name="ExerciseDetails" component={ExerciseDetailsScreen} options={{ headerShown: true, title: 'Detail cviku' }}
-            />
+            <Stack.Screen name="ExerciseDetails" component={ExerciseDetailsScreen} options={{ headerShown: true, title: 'Detail cviku' }}/>
+            <Stack.Screen name="SelectPlanForExercise" component={SelectPlanForExerciseScreen} options={{ title: 'Výběr plánu' }}/>
+
         </Stack.Navigator>
     )
 };
