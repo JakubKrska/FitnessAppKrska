@@ -8,8 +8,9 @@ import {
     Text,
     Alert,
 } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import {useRoute} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 import AppTitle from '../components/ui/AppTitle';
 import AppCard from '../components/ui/AppCard';
@@ -26,6 +27,7 @@ const ExerciseDetailsScreen = () => {
     const [loading, setLoading] = useState(true);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
+
 
     useEffect(() => {
         fetchExercise();
@@ -131,7 +133,7 @@ const ExerciseDetailsScreen = () => {
                 comments.map((c) => (
                     <AppCard key={c.id}>
                         <Text style={styles.label}>{c.commentText}</Text>
-                        <Text style={styles.italic}>{new Date(c.createdAt).toLocaleString()}</Text>
+
                     </AppCard>
                 ))
             )}

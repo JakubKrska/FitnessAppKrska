@@ -17,17 +17,18 @@ import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import BottomTabNavigator from "./BottomTabNavigator";
 import WeightScreen from "../screens/WeightScreen";
+import ExerciseDetailsScreen from "../screens/ExerciseDetailsScreen";
 
 const Stack = createNativeStackNavigator();
 
 const DashboardStackNavigator = () => {
     return (
         <Stack.Navigator>
-                <Stack.Screen name="Welcome" component={WelcomeScreen} options={{title: "Welcome"}} />
-                <Stack.Screen name="Login" component={LoginScreen} options={{title: "Login"}} />
-                <Stack.Screen name="Register" component={RegisterScreen} options={{title: "Register"}} />
-                <Stack.Screen name="MainApp" component={BottomTabNavigator} options={{title: "Main"}} />
-                <Stack.Screen name="OnboardingGoal" component={OnboardingGoalScreen} options={{title: "Onboard"}} />
+            <Stack.Screen name="Welcome" component={WelcomeScreen} options={{title: "Welcome"}} />
+            <Stack.Screen name="Login" component={LoginScreen} options={{title: "Login"}} />
+            <Stack.Screen name="Register" component={RegisterScreen} options={{title: "Register"}} />
+            <Stack.Screen name="MainApp" component={BottomTabNavigator} options={{title: "Main"}} />
+            <Stack.Screen name="OnboardingGoal" component={OnboardingGoalScreen} options={{title: "Onboard"}} />
             <Stack.Screen name="Dashboard" component={DashboardScreen} options={{title: "Dashboard"}}/>
             <Stack.Screen name="OnboardingGoal" component={OnboardingGoalScreen} options={{title: "Nastavení Cíle"}}/>
             <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{title: "Úprava profilu"}}/>
@@ -39,9 +40,11 @@ const DashboardStackNavigator = () => {
             <Stack.Screen name="Reminders" component={ReminderListScreen}/>
             <Stack.Screen name="AddReminder" component={ReminderFormScreen}/>
             <Stack.Screen name="WorkoutSummary" component={WorkoutSummaryScreen}/>
-            <Stack.Screen name="Badges" component={BadgesScreen} options={{title: "Všechny odznaky"}}/> {/* nový */}
+            <Stack.Screen name="Badges" component={BadgesScreen} options={{title: "Všechny odznaky"}}/>
+            <Stack.Screen name="ExerciseDetails" component={ExerciseDetailsScreen} options={{ headerShown: true, title: 'Detail cviku' }}
+            />
         </Stack.Navigator>
-    );
+    )
 };
 
 export default DashboardStackNavigator;
