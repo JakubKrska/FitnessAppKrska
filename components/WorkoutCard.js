@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {colors, spacing, borderRadius} from './ui/theme';
 
 const WorkoutCard = ({planName, completedAt, onPress}) => {
@@ -15,7 +15,7 @@ const WorkoutCard = ({planName, completedAt, onPress}) => {
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: colors.white,
+        backgroundColor: colors.gray,
         padding: spacing.medium,
         borderRadius: borderRadius.medium,
         marginBottom: spacing.medium,

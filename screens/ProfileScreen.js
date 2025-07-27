@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -14,10 +14,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppTitle from '../components/ui/AppTitle';
 import AppCard from '../components/ui/AppCard';
 import AppButton from '../components/ui/AppButton';
-import {colors, spacing} from '../components/ui/theme';
+import { colors, spacing } from '../components/ui/theme';
 import { apiFetch } from '../api';
 
-const ProfileScreen = ({navigation}) => {
+const ProfileScreen = ({ navigation }) => {
     const [user, setUser] = useState(null);
     const [badges, setBadges] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -47,12 +47,12 @@ const ProfileScreen = ({navigation}) => {
         fetchUserData();
     }, []);
 
-    const renderBadge = ({item}) => (
+    const renderBadge = ({ item }) => (
         <View style={styles.badgeContainer}>
             {item.icon ? (
-                <Image source={{uri: item.icon}} style={styles.icon}/>
+                <Image source={{ uri: item.icon }} style={styles.icon} />
             ) : (
-                <View style={styles.placeholderIcon}/>
+                <View style={styles.placeholderIcon} />
             )}
             <Text style={styles.badgeName}>{item.name}</Text>
         </View>
@@ -61,7 +61,7 @@ const ProfileScreen = ({navigation}) => {
     if (loading) {
         return (
             <View style={styles.centered}>
-                <ActivityIndicator size="large" color={colors.primary}/>
+                <ActivityIndicator size="large" color={colors.primary} />
             </View>
         );
     }
@@ -85,11 +85,11 @@ const ProfileScreen = ({navigation}) => {
                 <Text style={styles.label}>Váha: <Text style={styles.value}>{user.weight ?? '–'} kg</Text></Text>
                 <Text style={styles.label}>Cíl: <Text style={styles.value}>{user.goal}</Text></Text>
                 <Text style={styles.label}>Úroveň: <Text style={styles.value}>{user.experienceLevel}</Text></Text>
-
             </AppCard>
 
-            <AppButton title="Upravit profil" onPress={() => navigation.navigate("EditProfile")}/>
-            <AppButton title="Změnit heslo" onPress={() => Alert.alert("Připravujeme obrazovku pro změnu hesla")}/>
+            <AppButton title="Upravit profil" onPress={() => navigation.navigate("EditProfile")} />
+            <AppButton title="Změnit heslo" onPress={() => navigation.navigate("ChangePassword")} />
+            <AppButton title="Moje připomínky" onPress={() => navigation.navigate("Reminders")} />
 
             <Text style={styles.badgesTitle}>Moje odznaky</Text>
             <FlatList
@@ -99,8 +99,6 @@ const ProfileScreen = ({navigation}) => {
                 numColumns={3}
                 contentContainerStyle={styles.badgeList}
             />
-
-
         </ScrollView>
     );
 };

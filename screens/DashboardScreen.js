@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from "react";
+import React, { useState, useCallback, useLayoutEffect } from "react";
 import {
     ScrollView,
     Text,
@@ -7,14 +7,14 @@ import {
     View,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {useNavigation, useFocusEffect} from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
-import {colors, spacing} from "../components/ui/theme";
+import { colors, spacing } from "../components/ui/theme";
 import AppButton from "../components/ui/AppButton";
 import AppCard from "../components/ui/AppCard";
 import AppTitle from "../components/ui/AppTitle";
 import PlanCard from "../components/PlanCard";
-import WorkoutHistoryCard from "../components/WorkoutHistoryCard";
+import WorkoutCard from "../components/WorkoutCard";
 import { apiFetch } from "../api";
 
 const DashboardScreen = () => {
@@ -23,6 +23,7 @@ const DashboardScreen = () => {
     const [userPlans, setUserPlans] = useState([]);
     const [bmi, setBmi] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [streak, setStreak] = useState(0);
 
     const navigation = useNavigation();
 
@@ -33,7 +34,7 @@ const DashboardScreen = () => {
 
         try {
             const data = await apiFetch("/users/me", {
-                headers: {Authorization: `Bearer ${token}`},
+                headers: { Authorization: `Bearer ${token}` },
             });
             setUserData(data);
             if (data.height && data.weight) {
@@ -49,9 +50,10 @@ const DashboardScreen = () => {
         const token = await AsyncStorage.getItem("token");
         try {
             const history = await apiFetch("/workout-history", {
-                headers: {Authorization: `Bearer ${token}`},
+                headers: { Authorization: `Bearer ${token}` },
             });
             setWorkoutHistory(history);
+            setStreak(calculateStreak(history));
         } catch (e) {
             console.error("Chyba načítání historie:", e);
         }
@@ -62,7 +64,7 @@ const DashboardScreen = () => {
         const userId = await AsyncStorage.getItem("userId");
         try {
             const plans = await apiFetch("/workout-plans", {
-                headers: {Authorization: `Bearer ${token}`},
+                headers: { Authorization: `Bearer ${token}` },
             });
             setUserPlans(plans.filter(p => p.userId?.toString() === userId));
         } catch (e) {
@@ -79,23 +81,50 @@ const DashboardScreen = () => {
         load();
     }, [fetchUser, fetchHistory, fetchPlans]));
 
-    const logout = async () => {
-        await AsyncStorage.clear();
-        navigation.navigate("Login");
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerRight: () => (
+                <AppButton
+                    title="Odhlásit se"
+                    color={colors.danger}
+                    onPress={async () => {
+                        await AsyncStorage.clear();
+                        navigation.navigate("Login");
+                    }}
+                />
+            ),
+        });
+    }, [navigation]);
+
+    const calculateStreak = (history) => {
+        const days = new Set(history.map(h =>
+            new Date(h.completedAt).toISOString().slice(0, 10)
+        ));
+
+        let streak = 0;
+        let current = new Date();
+        current.setHours(0, 0, 0, 0);
+
+        while (days.has(current.toISOString().slice(0, 10))) {
+            streak += 1;
+            current.setDate(current.getDate() - 1);
+        }
+
+        return streak;
     };
 
     if (loading) {
         return (
             <View style={styles.loaderContainer}>
-                <ActivityIndicator size="large" color={colors.primary}/>
+                <ActivityIndicator size="large" color={colors.primary} />
             </View>
         );
     }
 
+    const lastWorkout = workoutHistory[0];
+
     return (
         <ScrollView style={styles.container}>
-
-
             <AppTitle>Tvé pokroky</AppTitle>
             {userData && (
                 <AppCard>
@@ -109,9 +138,12 @@ const DashboardScreen = () => {
             )}
 
             <AppTitle>Rychlé akce</AppTitle>
-            <AppButton title="Upravit profil" onPress={() => navigation.navigate("EditProfile")}/>
-            <AppButton title="Vývoj váhy" onPress={() => navigation.navigate("WeightScreen")}/>
+            <AppButton title="Vývoj váhy" onPress={() => navigation.navigate("WeightScreen")} />
 
+            <AppTitle>Aktivní dny v řadě</AppTitle>
+            <AppCard>
+                <Text style={styles.streak}>{streak} dní v řadě</Text>
+            </AppCard>
 
             <AppTitle>Tréninkové plány</AppTitle>
             {userPlans.length === 0 ? (
@@ -124,22 +156,29 @@ const DashboardScreen = () => {
                         goal={plan.goal}
                         level={plan.experienceLevel}
                         onPress={() =>
-                            navigation.navigate("WorkoutSession", {planId: plan.id})
+                            navigation.navigate("WorkoutSession", { planId: plan.id })
                         }
                     />
                 ))
             )}
 
             <AppTitle>Poslední cvičení</AppTitle>
-            {workoutHistory.length === 0 ? (
+            {!lastWorkout ? (
                 <Text>Žádné záznamy</Text>
             ) : (
-                workoutHistory.map(entry => (
-                    <WorkoutHistoryCard key={entry.id} entry={entry}/>
-                ))
+                <WorkoutCard
+                    planName={lastWorkout.workoutPlanName || "Neznámý plán"}
+                    completedAt={lastWorkout.completedAt}
+                    onPress={() =>
+                        navigation.navigate("WorkoutHistoryDetail", {
+                            historyId: lastWorkout.id,
+                            completedAt: lastWorkout.completedAt,
+                            planName: lastWorkout.workoutPlanName,
+                            planId: lastWorkout.workoutPlanId,
+                        })
+                    }
+                />
             )}
-
-            <AppButton title="Odhlásit se" onPress={logout} color={colors.danger}/>
         </ScrollView>
     );
 };
@@ -162,6 +201,12 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
+    },
+    streak: {
+        fontSize: 24,
+        fontWeight: "bold",
+        color: colors.primary,
+        textAlign: "center",
     },
 });
 
