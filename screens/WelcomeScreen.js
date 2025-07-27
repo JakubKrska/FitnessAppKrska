@@ -1,32 +1,27 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import AppButton from "../components/ui/AppButton";
 import { colors, spacing } from "../components/ui/theme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-
 const WelcomeScreen = ({ navigation }) => {
 
-    useEffect(() => {
-        const setSeenWelcome = async () => {
-            try {
-                await AsyncStorage.setItem("hasSeenWelcome", "true");
-            } catch (e) {
-                console.error("Chyba při ukládání hasSeenWelcome:", e);
-            }
-        };
-
-        setSeenWelcome();
-    }, []);
+    const handleNavigate = async (screen) => {
+        try {
+            await AsyncStorage.setItem("hasSeenWelcome", "true");
+            navigation.navigate(screen);
+        } catch (e) {
+            console.error("Chyba při ukládání hasSeenWelcome:", e);
+        }
+    };
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Vítej ve FitnessApp</Text>
             <Text style={styles.subtitle}>Sleduj pokroky, plánuj tréninky, motivuj se.</Text>
 
-            <AppButton title="Přihlásit se" onPress={() => navigation.navigate("Login")} />
-            <AppButton title="Registrace" onPress={() => navigation.navigate("Register")} />
-
+            <AppButton title="Přihlásit se" onPress={() => handleNavigate("Login")} />
+            <AppButton title="Registrace" onPress={() => handleNavigate("Register")} />
         </View>
     );
 };
