@@ -10,5 +10,4 @@ data class WorkoutExercise(
     val sets: Int,
     val reps: Int,
     val orderIndex: Int,
-    val weight: Double? = null
 )

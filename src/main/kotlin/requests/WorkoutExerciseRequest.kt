@@ -12,7 +12,7 @@ data class WorkoutExerciseRequest(
     val sets: Int,
     val reps: Int,
     val orderIndex: Int,
-    val weight: Double? = null
+
 ) {
     fun validate(): List<String> {
         val errors = mutableListOf<String>()
@@ -29,7 +29,7 @@ data class WorkoutExerciseRequest(
             sets = sets,
             reps = reps,
             orderIndex = orderIndex,
-            weight = weight
+
         )
     }
 }
