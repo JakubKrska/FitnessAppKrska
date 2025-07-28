@@ -1,18 +1,26 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-    View, ScrollView, Text, StyleSheet, ActivityIndicator, Alert, TouchableOpacity
+    View,
+    ScrollView,
+    Text,
+    StyleSheet,
+    ActivityIndicator,
+    Alert,
+    TouchableOpacity
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import { Picker } from '@react-native-picker/picker'; // nezapomeň nainstalovat: npm install @react-native-picker/picker
 
 import WorkoutHistoryCard from '../components/WorkoutHistoryCard';
 import AppTitle from '../components/ui/AppTitle';
-import {colors, spacing} from '../components/ui/theme';
+import { colors, spacing } from '../components/ui/theme';
 import { apiFetch } from '../api';
 
 const WorkoutHistoryScreen = () => {
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [sortBy, setSortBy] = useState("newest");
     const navigation = useNavigation();
 
     const fetchHistory = async () => {
@@ -20,7 +28,7 @@ const WorkoutHistoryScreen = () => {
             const token = await AsyncStorage.getItem("token");
 
             const data = await apiFetch("/users/me/history", {
-                headers: {Authorization: `Bearer ${token}`},
+                headers: { Authorization: `Bearer ${token}` },
             });
 
             setHistory(data);
@@ -36,16 +44,42 @@ const WorkoutHistoryScreen = () => {
         fetchHistory();
     }, []);
 
+    const sortedHistory = [...history].sort((a, b) => {
+        const dateA = new Date(a.completedAt);
+        const dateB = new Date(b.completedAt);
+
+        switch (sortBy) {
+            case "oldest":
+                return dateA - dateB;
+            case "planName":
+                return (a.workoutPlanName || "").localeCompare(b.workoutPlanName || "");
+            case "newest":
+            default:
+                return dateB - dateA;
+        }
+    });
+
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <AppTitle>Historie cvičení</AppTitle>
 
+            <Text style={styles.sortLabel}>Seřadit podle:</Text>
+            <Picker
+                selectedValue={sortBy}
+                onValueChange={(value) => setSortBy(value)}
+                style={styles.picker}
+            >
+                <Picker.Item label="Nejnovější" value="newest" />
+                <Picker.Item label="Nejstarší" value="oldest" />
+                <Picker.Item label="Název plánu (A–Z)" value="planName" />
+            </Picker>
+
             {loading ? (
-                <ActivityIndicator size="large" color={colors.primary}/>
-            ) : history.length === 0 ? (
+                <ActivityIndicator size="large" color={colors.primary} />
+            ) : sortedHistory.length === 0 ? (
                 <Text style={styles.empty}>Zatím nemáš žádné dokončené tréninky.</Text>
             ) : (
-                history.map(entry => (
+                sortedHistory.map(entry => (
                     <TouchableOpacity
                         key={entry.id}
                         onPress={() => navigation.navigate("WorkoutHistoryDetail", {
@@ -75,6 +109,16 @@ const styles = StyleSheet.create({
         padding: spacing.large,
         backgroundColor: colors.background,
         flexGrow: 1,
+    },
+    sortLabel: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: spacing.small,
+        color: colors.text,
+    },
+    picker: {
+        marginBottom: spacing.medium,
+        color: colors.text,
     },
     empty: {
         textAlign: 'center',

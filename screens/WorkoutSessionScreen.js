@@ -1,17 +1,17 @@
-import React, {useEffect, useState} from "react";
-import {View, Text, Image, Alert, StyleSheet} from "react-native";
-import {useNavigation, useRoute} from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
+import { View, Text, Image, Alert, StyleSheet } from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Speech from "expo-speech";
-import {Bar} from "react-native-progress";
+import { Bar } from "react-native-progress";
 import Slider from "@react-native-community/slider";
-import {v4 as uuidv4} from "uuid";
+import { v4 as uuidv4 } from "uuid";
 
 import AppTitle from "../components/ui/AppTitle";
 import AppCard from "../components/ui/AppCard";
 import AppButton from "../components/ui/AppButton";
-import {colors, spacing} from "../components/ui/theme";
-import {apiFetch} from "../api";
+import { colors, spacing } from "../components/ui/theme";
+import { apiFetch } from "../api";
 
 const motivationalPhrases = [
     "Skvělá práce, jen tak dál!",
@@ -30,7 +30,7 @@ const speak = (text) =>
 
 const WorkoutSessionScreen = () => {
     const navigation = useNavigation();
-    const {planId} = useRoute().params;
+    const { planId } = useRoute().params;
 
     const [token, setToken] = useState(null);
     const [userId, setUserId] = useState(null);
@@ -44,6 +44,8 @@ const WorkoutSessionScreen = () => {
     const [restDuration, setRestDuration] = useState(60);
     const [completed, setCompleted] = useState(false);
     const [showOverview, setShowOverview] = useState(true);
+    const [setTimeoutId, setSetTimeoutId] = useState(null);
+    const [forceEndRequested, setForceEndRequested] = useState(false);
 
     useEffect(() => {
         const loadCredentials = async () => {
@@ -60,7 +62,7 @@ const WorkoutSessionScreen = () => {
 
         const fetchWorkout = async () => {
             const data = await apiFetch(`/workout-exercises/${planId}`, {
-                headers: {Authorization: `Bearer ${token}`},
+                headers: { Authorization: `Bearer ${token}` },
             });
 
             const sorted = data.sort((a, b) => a.orderIndex - b.orderIndex);
@@ -69,7 +71,7 @@ const WorkoutSessionScreen = () => {
             const details = {};
             for (const ex of sorted) {
                 const info = await apiFetch(`/exercises/${ex.exerciseId}`, {
-                    headers: {Authorization: `Bearer ${token}`},
+                    headers: { Authorization: `Bearer ${token}` },
                 });
                 details[ex.exerciseId] = info;
             }
@@ -79,7 +81,7 @@ const WorkoutSessionScreen = () => {
         const fetchPlanName = async () => {
             try {
                 const data = await apiFetch(`/workout-plans/${planId}`, {
-                    headers: {Authorization: `Bearer ${token}`},
+                    headers: { Authorization: `Bearer ${token}` },
                 });
                 setPlanName(data.name);
             } catch (e) {
@@ -90,6 +92,24 @@ const WorkoutSessionScreen = () => {
         fetchWorkout();
         fetchPlanName();
     }, [token, userId]);
+
+    useEffect(() => {
+        if (!isResting && !completed && workoutExercises.length > 0) {
+            const current = workoutExercises[currentIndex];
+            if (current && current.reps) {
+                const timeLimit = current.reps * 10 * 1000;
+                const timeout = setTimeout(() => {
+                    speak("Časový limit série vypršel. Přecházíme na pauzu.");
+                    setIsResting(true);
+                }, timeLimit);
+                setSetTimeoutId(timeout);
+            }
+        }
+
+        return () => {
+            if (setTimeoutId) clearTimeout(setTimeoutId);
+        };
+    }, [currentIndex, currentSet]);
 
     useEffect(() => {
         let timer;
@@ -107,6 +127,8 @@ const WorkoutSessionScreen = () => {
         setRestTime(restDuration);
 
         const current = workoutExercises[currentIndex];
+        if (!current) return;
+
         if (currentSet < current.sets) {
             setCurrentSet(currentSet + 1);
             speak(`Připrav se na sérii číslo ${currentSet + 1}`);
@@ -114,12 +136,23 @@ const WorkoutSessionScreen = () => {
             setCurrentIndex(currentIndex + 1);
             setCurrentSet(1);
         } else {
-            setCompleted(true);
             logWorkoutCompletion();
         }
     };
+    useEffect(() => {
+        if (forceEndRequested) {
+            if (setTimeoutId) clearTimeout(setTimeoutId);
+            speak("Trénink předčasně ukončen.");
+            navigation.reset({
+                index: 0,
+                routes: [{ name: "MainTabs" }],
+            });
+        }
+    }, [forceEndRequested]);
 
     const handleCompleteSet = () => {
+        if (setTimeoutId) clearTimeout(setTimeoutId);
+
         const phrase = motivationalPhrases[Math.floor(Math.random() * motivationalPhrases.length)];
         speak(`Série dokončena. ${phrase} Pauza začíná.`);
         setIsResting(true);
@@ -131,61 +164,83 @@ const WorkoutSessionScreen = () => {
     };
 
     const skipExercise = () => {
+        if (setTimeoutId) clearTimeout(setTimeoutId);
+
         if (currentIndex < workoutExercises.length - 1) {
             speak("Cvik přeskočen.");
             setCurrentIndex(currentIndex + 1);
             setCurrentSet(1);
             setIsResting(false);
         } else {
+            // ❗️ Tady byl problém – přidej rovnou dokončení
             speak("Žádný další cvik. Dokončujeme.");
-            setCompleted(true);
             logWorkoutCompletion();
         }
     };
 
-    const confirmEndWorkout = () => {
-        Alert.alert("Ukončit trénink", "Opravdu chceš ukončit trénink?", [
-            {text: "Zrušit", style: "cancel"},
-            {
-                text: "Ukončit",
-                onPress: () => {
-                    speak("Trénink předčasně ukončen.");
-                    navigation.navigate("Dashboard");
+    const endWorkoutImmediately = () => {
+        if (setTimeoutId) clearTimeout(setTimeoutId);
+        speak("Trénink ukončen.");
+        navigation.reset({
+            index: 0,
+            routes: [
+                {
+                    name: "MainTabs",
+                    params: { screen: "Dashboard" },
                 },
-            },
-        ]);
+            ],
+        });
     };
 
     const logWorkoutCompletion = async () => {
         const completedAt = new Date().toISOString();
 
-        await apiFetch("/workout-history", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-                id: uuidv4(),
-                userId,
-                workoutPlanId: planId,
-                completedAt,
-            }),
-        });
+        console.log("🧾 Loguju dokončení tréninku...");
+        try {
+            await apiFetch("/workout-history", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    id: uuidv4(),
+                    userId,
+                    workoutPlanId: planId,
+                    completedAt,
+                }),
+            });
+            console.log("✅ Workout history uložena");
+        } catch (e) {
+            console.error("❌ Chyba při ukládání historie", e);
+        }
 
         const totalSets = workoutExercises.reduce((sum, ex) => sum + ex.sets, 0);
         const totalReps = workoutExercises.reduce((sum, ex) => sum + (ex.sets * ex.reps), 0);
 
         speak("Trénink dokončen! Skvělá práce!");
 
+        console.log("📦 Naviguji na WorkoutSummary", {
+            completedAt,
+            planName,
+            planId,
+            userId,
+            exercisesCompleted: workoutExercises.length,
+            totalSets,
+            totalReps,
+        });
+
         navigation.navigate("WorkoutSummary", {
             completedAt,
             planName: planName || "Trénink",
+            planId,
+            userId,
             exercisesCompleted: workoutExercises.length,
             totalSets,
             totalReps,
         });
     };
+
 
     if (!token || !userId || workoutExercises.length === 0) {
         return (
@@ -195,14 +250,7 @@ const WorkoutSessionScreen = () => {
         );
     }
 
-    if (completed) {
-        return (
-            <View style={styles.center}>
-                <AppTitle>Trénink dokončen!</AppTitle>
-                <AppButton title="Zpět na Dashboard" onPress={() => navigation.navigate("Dashboard")}/>
-            </View>
-        );
-    }
+
 
     if (showOverview) {
         return (
@@ -225,7 +273,7 @@ const WorkoutSessionScreen = () => {
                     Nastav si délku pauzy mezi sériemi: {restDuration} s
                 </Text>
                 <Slider
-                    style={{width: "100%", height: 40}}
+                    style={{ width: "100%", height: 40 }}
                     minimumValue={10}
                     maximumValue={180}
                     step={5}
@@ -238,7 +286,7 @@ const WorkoutSessionScreen = () => {
                 <AppButton
                     title="Začít trénink"
                     onPress={() => {
-                        speak("Začínáme trénink.");
+                        speak("Začínáme trénink! Až budeš chtít, začni s první sérií a až ji dokončíš, tak to odklikni.");
                         setShowOverview(false);
                     }}
                 />
@@ -247,7 +295,7 @@ const WorkoutSessionScreen = () => {
     }
 
     const current = workoutExercises[currentIndex];
-    const info = exerciseDetails[current.exerciseId];
+    const info = current ? exerciseDetails[current.exerciseId] : null;
 
     return (
         <View style={styles.container}>
@@ -257,7 +305,7 @@ const WorkoutSessionScreen = () => {
                 <Text style={styles.label}>{currentIndex + 1}. {info?.name || "Neznámý cvik"}</Text>
 
                 {info?.imageUrl && (
-                    <Image source={{uri: info.imageUrl}} style={styles.image}/>
+                    <Image source={{ uri: info.imageUrl }} style={styles.image} />
                 )}
 
                 {info?.description && (
@@ -269,15 +317,15 @@ const WorkoutSessionScreen = () => {
 
                 {!isResting ? (
                     <>
-                        <AppButton title="Dokončit sérii" onPress={handleCompleteSet}/>
-                        <AppButton title="Přeskočit cvik" onPress={skipExercise} color={colors.secondary}/>
-                        <AppButton title="Ukončit trénink" onPress={confirmEndWorkout} color={colors.danger}/>
+                        <AppButton title="Dokončit sérii" onPress={handleCompleteSet} />
+                        <AppButton title="Přeskočit cvik" onPress={skipExercise} color={colors.secondary} />
+                        <AppButton title="Ukončit trénink" onPress={endWorkoutImmediately} color={colors.danger} />
                     </>
                 ) : (
                     <>
                         <Text style={styles.rest}>⏱ Pauza: {restTime}s</Text>
-                        <Bar progress={(restDuration - restTime) / restDuration} width={null} height={10} color={colors.primary}/>
-                        <AppButton title="Přeskočit pauzu" onPress={skipRest}/>
+                        <Bar progress={(restDuration - restTime) / restDuration} width={null} height={10} color={colors.primary} />
+                        <AppButton title="Přeskočit pauzu" onPress={skipRest} />
                     </>
                 )}
             </AppCard>

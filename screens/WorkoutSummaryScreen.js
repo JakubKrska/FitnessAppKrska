@@ -1,42 +1,68 @@
-import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, Share, ScrollView, Alert} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Share,
+    ScrollView,
+    Alert,
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Speech from 'expo-speech';
+
 import AppButton from '../components/ui/AppButton';
 import AppTitle from '../components/ui/AppTitle';
-import {colors, spacing} from '../components/ui/theme';
-import Toast from 'react-native-toast-message';
+import AppCard from '../components/ui/AppCard';
 import BadgeDetailModal from '../components/BadgeDetailModal';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {v4 as uuidv4} from 'uuid';
-import {apiFetch} from '../api';
+import Toast from 'react-native-toast-message';
 
-const WorkoutSummaryScreen = ({route, navigation}) => {
-    const {completedAt, planName, exercisesCompleted, totalSets, totalReps, userId, planId} = route.params;
+import { colors, spacing } from '../components/ui/theme';
+import { apiFetch } from '../api';
 
-    const [unlockedBadges, setUnlockedBadges] = useState([]);
+const speak = (text) =>
+    Speech.speak(text, {
+        language: 'cs-CZ',
+        pitch: 1.0,
+        rate: 1.0,
+    });
+
+const WorkoutSummaryScreen = ({ route, navigation }) => {
+    const {
+        completedAt,
+        planName,
+        exercisesCompleted,
+        totalSets,
+        totalReps,
+        userId: passedUserId,
+        planId: passedPlanId,
+    } = route.params;
+
     const [selectedBadge, setSelectedBadge] = useState(null);
 
     useEffect(() => {
         const fetchBadges = async () => {
-            const token = await AsyncStorage.getItem('token');
             try {
-                const response = await apiFetch('/workout-history', {
+                const token = await AsyncStorage.getItem('token');
+                const userId = passedUserId || await AsyncStorage.getItem('userId');
+
+                if (!token || !userId || !passedPlanId) return;
+
+                const response = await apiFetch(`/badges/unlock`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({
-                        id: uuidv4(),
                         userId,
-                        workoutPlanId: planId,
+                        workoutPlanId: passedPlanId,
                         completedAt,
                     }),
                 });
 
-                const newBadges = response.newBadges ?? [];
+                const newBadges = response?.newBadges ?? [];
 
                 if (newBadges.length > 0) {
-                    setUnlockedBadges(newBadges);
                     Toast.show({
                         type: 'success',
                         text1: '🎉 Nový odznak!',
@@ -45,8 +71,10 @@ const WorkoutSummaryScreen = ({route, navigation}) => {
                     });
                 }
             } catch (err) {
-                console.error("Chyba při fetchi odznaků", err);
+                console.warn('Odznaky nejsou aktivní nebo dočasná chyba:', err.message);
             }
+
+            speak("Trénink dokončen. Skvělá práce!");
         };
 
         fetchBadges();
@@ -54,8 +82,8 @@ const WorkoutSummaryScreen = ({route, navigation}) => {
 
     const handleShare = async () => {
         try {
-            const message = `Právě jsi dokončil(a) trénink "${planName}"!\n📅 ${new Date(completedAt).toLocaleString('cs-CZ')}\n🔥 Cviky: ${exercisesCompleted} | Série: ${totalSets} | Opakování: ${totalReps}`;
-            await Share.share({message});
+            const message = `Právě jsem dokončil(a) trénink "${planName}"!\n📅 ${new Date(completedAt).toLocaleString('cs-CZ')}\n🔥 Cviky: ${exercisesCompleted} | Série: ${totalSets} | Opakování: ${totalReps}`;
+            await Share.share({ message });
         } catch (error) {
             Alert.alert("Chyba", "Sdílení selhalo: " + error.message);
         }
@@ -64,20 +92,28 @@ const WorkoutSummaryScreen = ({route, navigation}) => {
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <AppTitle>✅ Shrnutí tréninku</AppTitle>
-            <Text style={styles.item}>Plán: {planName}</Text>
-            <Text style={styles.item}>Dokončeno: {new Date(completedAt).toLocaleString('cs-CZ')}</Text>
-            <Text style={styles.item}>Cviky: {exercisesCompleted}</Text>
-            <Text style={styles.item}>Série: {totalSets}</Text>
-            <Text style={styles.item}>Opakování: {totalReps}</Text>
+
+            <AppCard>
+                <Text style={styles.item}>Plán: {planName}</Text>
+                <Text style={styles.item}>Dokončeno: {new Date(completedAt).toLocaleString('cs-CZ')}</Text>
+                <Text style={styles.item}>Cviky: {exercisesCompleted}</Text>
+                <Text style={styles.item}>Série: {totalSets}</Text>
+                <Text style={styles.item}>Opakování: {totalReps}</Text>
+            </AppCard>
 
             <View style={styles.shareSection}>
-                <Text style={styles.shareTitle}>📤 Sdílej svůj výkon s ostatními</Text>
-                <AppButton title="Sdílet výsledek" onPress={handleShare}/>
+                <Text style={styles.shareTitle}>📤 Sdílej svůj výkon</Text>
+                <AppButton title="Sdílet výsledek" onPress={handleShare} />
             </View>
 
             <AppButton
                 title="Zpět na Dashboard"
-                onPress={() => navigation.navigate('Dashboard')}
+                onPress={() =>
+                    navigation.reset({
+                        index: 0,
+                        routes: [{ name: 'MainTabs', params: { screen: 'Dashboard' } }],
+                    })
+                }
             />
 
             <BadgeDetailModal
@@ -99,7 +135,7 @@ const styles = StyleSheet.create({
     item: {
         fontSize: 16,
         color: colors.text,
-        marginBottom: spacing.medium,
+        marginBottom: spacing.small,
     },
     shareSection: {
         marginVertical: spacing.large,
