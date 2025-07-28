@@ -1,4 +1,4 @@
-import com.example.models.WorkoutExercises
+import WorkoutExercises
 import com.example.models.WorkoutHistory
 import com.example.models.WorkoutPerformances
 import com.typesafe.config.ConfigFactory

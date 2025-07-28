@@ -1,7 +1,7 @@
 package repository
 
 import WorkoutExercise
-import com.example.models.WorkoutExercises
+import WorkoutExercises
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq

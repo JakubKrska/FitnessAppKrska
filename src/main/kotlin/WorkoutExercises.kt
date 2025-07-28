@@ -1,5 +1,3 @@
-package com.example.models
-
 import Exercises
 import org.jetbrains.exposed.sql.Table
 
