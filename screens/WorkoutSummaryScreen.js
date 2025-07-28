@@ -18,6 +18,7 @@ import Toast from 'react-native-toast-message';
 
 import { colors, spacing } from '../components/ui/theme';
 import { apiFetch } from '../api';
+import {exportToCSV} from "../components/utils/exportUtils";
 
 const speak = (text) =>
     Speech.speak(text, {
@@ -163,6 +164,11 @@ const WorkoutSummaryScreen = ({ route, navigation }) => {
                 <Text style={styles.shareTitle}>📤 Sdílej svůj výkon</Text>
                 <AppButton title="Sdílet výsledek" onPress={handleShare} />
             </View>
+
+            <AppButton
+                title="📄 Export do CSV"
+                onPress={() => exportToCSV(performance, exerciseMap)}
+            />
 
             <AppButton
                 title="Zpět na Dashboard"

@@ -160,14 +160,12 @@ const WorkoutSessionScreen = () => {
         speak(`Série dokončena. ${phrase} Pauza začíná.`);
         setIsResting(true);
 
-        // Přidat záznam do performance logu
         const perf = {
             id: uuidv4(),
-            workoutHistoryId: null,
             exerciseId: current.exerciseId,
             setsCompleted: 1,
             repsCompleted: current.reps,
-            weightUsed: current.weight || null
+            weightUsed: current.weight || null,
         };
 
         setPerformanceLog((prev) => [...prev, perf]);
@@ -225,6 +223,7 @@ const WorkoutSessionScreen = () => {
                     completedAt,
                 }),
             });
+
             for (const perf of performanceLog) {
                 await apiFetch("/workout-performance", {
                     method: "POST",
@@ -233,8 +232,12 @@ const WorkoutSessionScreen = () => {
                         Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({
-                        ...perf,
+                        id: perf.id,
                         workoutHistoryId: historyId,
+                        exerciseId: perf.exerciseId,
+                        setsCompleted: perf.setsCompleted,
+                        repsCompleted: perf.repsCompleted,
+                        weightUsed: perf.weightUsed,
                     }),
                 });
             }
