@@ -9,5 +9,6 @@ data class WorkoutExercise(
     @Contextual val exerciseId: UUID,
     val sets: Int,
     val reps: Int,
-    val orderIndex: Int
+    val orderIndex: Int,
+    val weight: Double? = null
 )

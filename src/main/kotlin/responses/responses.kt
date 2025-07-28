@@ -91,7 +91,8 @@ data class WorkoutExerciseResponse(
     @Contextual val exerciseId: UUID,
     val sets: Int,
     val reps: Int,
-    val orderIndex: Int
+    val orderIndex: Int,
+    val weight: Double? = null
 )
 
 fun WorkoutExercise.toResponse() = WorkoutExerciseResponse(
@@ -100,7 +101,8 @@ fun WorkoutExercise.toResponse() = WorkoutExerciseResponse(
     exerciseId = exerciseId,
     sets = sets,
     reps = reps,
-    orderIndex = orderIndex
+    orderIndex = orderIndex,
+    weight = weight
 )
 
 @Serializable

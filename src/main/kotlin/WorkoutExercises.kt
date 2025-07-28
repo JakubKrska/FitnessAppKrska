@@ -8,6 +8,7 @@ object WorkoutExercises : Table("workout_exercises") {
     val sets = integer("sets") // Počet sérií
     val reps = integer("reps") // Počet opakování
     val orderIndex = integer("order_index") // Počet opakování
+    val weight = double("weight").nullable()
 
     override val primaryKey = PrimaryKey(id)
 }

@@ -29,6 +29,7 @@ class WorkoutExercisesRepository {
             it[sets] = exercise.sets
             it[reps] = exercise.reps
             it[orderIndex] = exercise.orderIndex
+            it[weight] = exercise.weight
         }
     }
 
@@ -39,6 +40,7 @@ class WorkoutExercisesRepository {
             it[sets] = updated.sets
             it[reps] = updated.reps
             it[orderIndex] = updated.orderIndex
+            it[weight] = updated.weight
         } > 0
     }
 
@@ -56,6 +58,7 @@ class WorkoutExercisesRepository {
                 it[sets] = ex.sets
                 it[reps] = ex.reps
                 it[orderIndex] = ex.orderIndex
+                it[weight] = ex.weight
             }
         }
     }
@@ -67,6 +70,7 @@ class WorkoutExercisesRepository {
         exerciseId = row[WorkoutExercises.exerciseId],
         sets = row[WorkoutExercises.sets],
         reps = row[WorkoutExercises.reps],
-        orderIndex = row[WorkoutExercises.orderIndex]
+        orderIndex = row[WorkoutExercises.orderIndex],
+        weight = row[WorkoutExercises.weight]
     )
 }
