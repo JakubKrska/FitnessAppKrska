@@ -46,6 +46,9 @@ const WorkoutSessionScreen = () => {
     const [showOverview, setShowOverview] = useState(true);
     const [setTimeoutId, setSetTimeoutId] = useState(null);
     const [forceEndRequested, setForceEndRequested] = useState(false);
+    const [performanceLog, setPerformanceLog] = useState([]);
+    const historyId = uuidv4();
+
 
     useEffect(() => {
         const loadCredentials = async () => {
@@ -156,6 +159,18 @@ const WorkoutSessionScreen = () => {
         const phrase = motivationalPhrases[Math.floor(Math.random() * motivationalPhrases.length)];
         speak(`Série dokončena. ${phrase} Pauza začíná.`);
         setIsResting(true);
+
+        // Přidat záznam do performance logu
+        const perf = {
+            id: uuidv4(),
+            workoutHistoryId: null,
+            exerciseId: current.exerciseId,
+            setsCompleted: 1,
+            repsCompleted: current.reps,
+            weightUsed: current.weight || null
+        };
+
+        setPerformanceLog((prev) => [...prev, perf]);
     };
 
     const skipRest = () => {
@@ -204,12 +219,25 @@ const WorkoutSessionScreen = () => {
                     Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                    id: uuidv4(),
+                    id: historyId,
                     userId,
                     workoutPlanId: planId,
                     completedAt,
                 }),
             });
+            for (const perf of performanceLog) {
+                await apiFetch("/workout-performance", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        ...perf,
+                        workoutHistoryId: historyId,
+                    }),
+                });
+            }
             console.log("✅ Workout history uložena");
         } catch (e) {
             console.error("❌ Chyba při ukládání historie", e);
@@ -314,6 +342,7 @@ const WorkoutSessionScreen = () => {
 
                 <Text style={styles.status}>Série: {currentSet} / {current.sets}</Text>
                 <Text style={styles.status}>Opakování: {current.reps}</Text>
+                <Text style={styles.status}>Doporučená váha: {current.weight ? `${current.weight} kg` : "neuvedeno/vlastní váha"}</Text>
 
                 {!isResting ? (
                     <>

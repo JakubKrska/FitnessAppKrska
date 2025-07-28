@@ -38,15 +38,19 @@ const WorkoutSummaryScreen = ({ route, navigation }) => {
     } = route.params;
 
     const [selectedBadge, setSelectedBadge] = useState(null);
+    const [totalWeight, setTotalWeight] = useState(null);
+    const [performance, setPerformance] = useState([]);
+    const [exerciseMap, setExerciseMap] = useState({});
 
     useEffect(() => {
-        const fetchBadges = async () => {
+        const fetchData = async () => {
             try {
                 const token = await AsyncStorage.getItem('token');
                 const userId = passedUserId || await AsyncStorage.getItem('userId');
 
                 if (!token || !userId || !passedPlanId) return;
 
+                // 🔐 Odznaky
                 const response = await apiFetch(`/badges/unlock`, {
                     method: 'POST',
                     headers: {
@@ -70,19 +74,56 @@ const WorkoutSummaryScreen = ({ route, navigation }) => {
                         onPress: () => setSelectedBadge(newBadges[0]),
                     });
                 }
-            } catch (err) {
-                console.warn('Odznaky nejsou aktivní nebo dočasná chyba:', err.message);
-            }
 
-            speak("Trénink dokončen. Skvělá práce!");
+                // 📘 Najdi historii
+                const historyList = await apiFetch(`/users/me/history`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                const thisWorkout = historyList.find(
+                    (h) =>
+                        h.workoutPlanName === planName &&
+                        new Date(h.completedAt).toISOString() === new Date(completedAt).toISOString()
+                );
+
+                if (!thisWorkout?.id) return;
+
+                // 📦 Výkon
+                const perf = await apiFetch(`/workout-performance/${thisWorkout.id}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                setPerformance(perf);
+
+                const exMap = {};
+                for (const p of perf) {
+                    if (!exMap[p.exerciseId]) {
+                        const ex = await apiFetch(`/exercises/${p.exerciseId}`, {
+                            headers: { Authorization: `Bearer ${token}` },
+                        });
+                        exMap[p.exerciseId] = ex.name;
+                    }
+                }
+                setExerciseMap(exMap);
+
+                const total = perf.reduce((sum, p) => {
+                    const w = p.weightUsed || 0;
+                    return sum + (w * p.repsCompleted * p.setsCompleted);
+                }, 0);
+                setTotalWeight(total);
+
+                speak("Trénink dokončen. Skvělá práce!");
+            } catch (err) {
+                console.warn('Chyba při načítání shrnutí:', err.message);
+            }
         };
 
-        fetchBadges();
+        fetchData();
     }, []);
 
     const handleShare = async () => {
         try {
-            const message = `Právě jsem dokončil(a) trénink "${planName}"!\n📅 ${new Date(completedAt).toLocaleString('cs-CZ')}\n🔥 Cviky: ${exercisesCompleted} | Série: ${totalSets} | Opakování: ${totalReps}`;
+            const message = `Právě jsem dokončil(a) trénink "${planName}"!\n📅 ${new Date(completedAt).toLocaleString('cs-CZ')}\n🔥 Cviky: ${exercisesCompleted} | Série: ${totalSets} | Opakování: ${totalReps}${totalWeight !== null ? ` | Váha: ${Math.round(totalWeight)} kg` : ''}`;
             await Share.share({ message });
         } catch (error) {
             Alert.alert("Chyba", "Sdílení selhalo: " + error.message);
@@ -99,7 +140,24 @@ const WorkoutSummaryScreen = ({ route, navigation }) => {
                 <Text style={styles.item}>Cviky: {exercisesCompleted}</Text>
                 <Text style={styles.item}>Série: {totalSets}</Text>
                 <Text style={styles.item}>Opakování: {totalReps}</Text>
+                {totalWeight !== null && (
+                    <Text style={styles.item}>Zvednutá váha celkem: {Math.round(totalWeight)} kg</Text>
+                )}
             </AppCard>
+
+            {performance.length > 0 && (
+                <>
+                    <AppTitle style={{ marginTop: spacing.large }}>📊 Výkony</AppTitle>
+                    {performance.map((p) => (
+                        <AppCard key={p.id}>
+                            <Text style={styles.itemBold}>{exerciseMap[p.exerciseId] || "Cvik"}</Text>
+                            <Text style={styles.item}>Série: {p.setsCompleted}</Text>
+                            <Text style={styles.item}>Opakování: {p.repsCompleted}</Text>
+                            <Text style={styles.item}>Váha: {p.weightUsed !== null ? `${p.weightUsed} kg` : "neuvedeno"}</Text>
+                        </AppCard>
+                    ))}
+                </>
+            )}
 
             <View style={styles.shareSection}>
                 <Text style={styles.shareTitle}>📤 Sdílej svůj výkon</Text>
@@ -136,6 +194,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: colors.text,
         marginBottom: spacing.small,
+    },
+    itemBold: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: colors.text,
+        marginBottom: 4,
     },
     shareSection: {
         marginVertical: spacing.large,

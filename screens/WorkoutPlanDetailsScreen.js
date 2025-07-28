@@ -36,6 +36,7 @@ const WorkoutPlanDetailsScreen = ({ route }) => {
         reps: 10,
         orderIndex: 1,
         restSeconds: 60,
+        weight: ''
     });
 
     useEffect(() => {
@@ -93,11 +94,12 @@ const WorkoutPlanDetailsScreen = ({ route }) => {
                     reps,
                     orderIndex,
                     restSeconds,
+                    weight: formData.weight || null
                 }),
             });
 
             await loadData();
-            setFormData({ exerciseId: '', sets: 3, reps: 10, orderIndex: exercises.length + 1, restSeconds: 60 });
+            setFormData({ exerciseId: '', sets: 3, reps: 10, orderIndex: exercises.length + 1, restSeconds: 60,  weight: '' });
         } catch (err) {
             Alert.alert('Chyba', err.message || 'Nepodařilo se přidat cvik.');
         }
@@ -217,11 +219,12 @@ const WorkoutPlanDetailsScreen = ({ route }) => {
                 onChangeText={(val) => setFormData({ ...formData, orderIndex: Number(val) })}
             />
 
-            <Text style={styles.label}>Pauza mezi sériemi (v sekundách)</Text>
+            <Text style={styles.label}>Doporučená váha (kg) – volitelné</Text>
             <AppTextInput
                 keyboardType="numeric"
-                value={String(formData.restSeconds)}
-                onChangeText={(val) => setFormData({ ...formData, restSeconds: Number(val) })}
+                placeholder="Např. 40"
+                value={formData.weight?.toString() || ''}
+                onChangeText={(val) => setFormData({ ...formData, weight: val ? parseFloat(val) : '' })}
             />
 
             <AppButton title="Přidat cvik do plánu" onPress={handleAdd} />
