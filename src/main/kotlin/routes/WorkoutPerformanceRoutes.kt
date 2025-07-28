@@ -48,8 +48,8 @@ fun Route.workoutPerformanceRoutes(
                 }
 
                 val history = historyRepo.getWorkoutHistoryById(request.workoutHistoryId)
-                if (history == null || !isOwnerOrAdmin(principal, history.userId)) {
-                    call.respond(HttpStatusCode.Forbidden, "Access denied")
+                if (history == null) {
+                    call.respond(HttpStatusCode.BadRequest, "Záznam historie neexistuje")
                     return@post
                 }
 
