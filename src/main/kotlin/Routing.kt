@@ -56,62 +56,64 @@ fun Application.configureRouting() {
         badgeRoutes(badgeRepository, userBadgeRepository)
 
 
+        authenticate("authUtils-jwt") {
+            get("/users") {
+                call.respond(userRepository.getAllUsers())
+            }
+            get("/users/me") {
+                val principal = call.principal<JWTPrincipal>()
+                val userId = principal?.getUserId()
 
-        get("/users") {
-            call.respond(userRepository.getAllUsers())
-        }
-        get("/users/me") {
-            val principal = call.principal<JWTPrincipal>()
-            val userId = principal?.getUserId()
+                if (userId != null) {
+                    val user = userRepository.getUserById(userId)
 
-            if (userId != null) {
-                val user = userRepository.getUserById(userId)
-
-                if (user != null) {
-                    call.respond(user.toResponse())
+                    if (user != null) {
+                        call.respond(user.toResponse())
+                    } else {
+                        call.respond(HttpStatusCode.NotFound, "Uživatel nenalezen")
+                    }
                 } else {
-                    call.respond(HttpStatusCode.NotFound, "Uživatel nenalezen")
+                    call.respond(HttpStatusCode.Unauthorized, "Chybí nebo neplatný token")
                 }
-            } else {
-                call.respond(HttpStatusCode.Unauthorized, "Chybí nebo neplatný token")
             }
-        }
-        put("/users/me") {
-            val principal = call.principal<JWTPrincipal>() ?: return@put call.respond(HttpStatusCode.Unauthorized)
-            val userId = principal.getUserId() ?: return@put call.respond(HttpStatusCode.BadRequest)
+            put("/users/me") {
+                val principal = call.principal<JWTPrincipal>() ?: return@put call.respond(HttpStatusCode.Unauthorized)
+                val userId = principal.getUserId() ?: return@put call.respond(HttpStatusCode.BadRequest)
 
-            val updatedData = call.receive<User>()
-            val success = userRepository.updateUser(userId, updatedData, updatedData.passwordHash) // Pokud je potřeba
+                val updatedData = call.receive<User>()
+                val success =
+                    userRepository.updateUser(userId, updatedData, updatedData.passwordHash) // Pokud je potřeba
 
-            if (success) {
+                if (success) {
+                    val user = userRepository.getUserById(userId)
+                    if (user != null) call.respond(user.toResponse())
+                    else call.respond(HttpStatusCode.NotFound)
+                } else {
+                    call.respond(HttpStatusCode.InternalServerError, "Nepodařilo se upravit profil")
+                }
+            }
+
+            post("/users/change-password") {
+                val principal = call.principal<JWTPrincipal>() ?: return@post call.respond(HttpStatusCode.Unauthorized)
+                val userId = principal.getUserId() ?: return@post call.respond(HttpStatusCode.BadRequest)
+
+                val request = call.receive<ChangePasswordRequest>()
+
                 val user = userRepository.getUserById(userId)
-                if (user != null) call.respond(user.toResponse())
-                else call.respond(HttpStatusCode.NotFound)
-            } else {
-                call.respond(HttpStatusCode.InternalServerError, "Nepodařilo se upravit profil")
-            }
-        }
+                if (user == null) return@post call.respond(HttpStatusCode.NotFound)
 
-        post("/users/change-password") {
-            val principal = call.principal<JWTPrincipal>() ?: return@post call.respond(HttpStatusCode.Unauthorized)
-            val userId = principal.getUserId() ?: return@post call.respond(HttpStatusCode.BadRequest)
+                if (!BCrypt.checkpw(request.oldPassword, user.passwordHash)) {
+                    return@post call.respond(HttpStatusCode.BadRequest, "Původní heslo je neplatné.")
+                }
 
-            val request = call.receive<ChangePasswordRequest>()
+                val hashed = BCrypt.hashpw(request.newPassword, BCrypt.gensalt())
+                val success = userRepository.updateUser(userId, user.copy(passwordHash = hashed), null)
 
-            val user = userRepository.getUserById(userId)
-            if (user == null) return@post call.respond(HttpStatusCode.NotFound)
-
-            if (!BCrypt.checkpw(request.oldPassword, user.passwordHash)) {
-                return@post call.respond(HttpStatusCode.BadRequest, "Původní heslo je neplatné.")
-            }
-
-            val hashed = BCrypt.hashpw(request.newPassword, BCrypt.gensalt())
-            val success = userRepository.updateUser(userId, user.copy(passwordHash = hashed), null)
-
-            if (success) {
-                call.respond(HttpStatusCode.OK, "Heslo úspěšně změněno.")
-            } else {
-                call.respond(HttpStatusCode.InternalServerError, "Nepodařilo se změnit heslo.")
+                if (success) {
+                    call.respond(HttpStatusCode.OK, "Heslo úspěšně změněno.")
+                } else {
+                    call.respond(HttpStatusCode.InternalServerError, "Nepodařilo se změnit heslo.")
+                }
             }
         }
         authenticate("authUtils-jwt") {
