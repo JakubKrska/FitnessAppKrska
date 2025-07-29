@@ -57,7 +57,7 @@ fun Application.configureRouting() {
         exerciseCommentsRoutes(exerciseCommentsRepository)
         favoriteExercisesRoutes(favoriteExercisesRepository)
         weightRoutes(WeightLogRepository())
-        reminderRoutes(reminderRepository)
+        reminderRoutes(reminderRepository, workoutPlanRepository)
         badgeRoutes(badgeRepository, userBadgeRepository)
 
 
