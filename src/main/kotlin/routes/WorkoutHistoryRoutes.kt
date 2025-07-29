@@ -75,8 +75,13 @@ fun Route.workoutHistoryRoutes(
                 val newEntry = request.toModel(userId)
                 workoutHistoryRepository.addWorkoutHistoryEntry(newEntry)
 
-                // ✅ Zkontroluj odznaky po přidání workout history
-                val newlyUnlocked = badgeUnlockService.checkAndUnlockBadgesForUser(userId)
+
+                val newlyUnlocked = try {
+                    badgeUnlockService.checkAndUnlockBadgesForUser(userId)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    emptyList()
+                }
 
                 call.respond(
                     HttpStatusCode.Created,
