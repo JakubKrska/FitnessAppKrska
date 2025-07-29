@@ -1,16 +1,14 @@
 package com.example
 
 import authUtils.JwtConfig
-import com.example.routes.*
 import configureSerialization
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.plugins.cors.routing.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.serialization.kotlinx.json.*
 import DatabaseFactory
+import configureRouting
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)

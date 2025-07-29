@@ -1,7 +1,3 @@
-package com.example
-
-
-import BadgeUnlockService
 import authUtils.getUserId
 import authUtils.getUserIdFromToken
 import routes.*
