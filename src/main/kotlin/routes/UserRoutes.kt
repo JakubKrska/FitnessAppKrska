@@ -19,11 +19,14 @@ import java.util.*
 import requests.RegisterRequest
 import responses.toResponse
 import java.time.Instant
+import BadgeUnlockService
+import responses.toResponse
 
 @Serializable
 data class LoginRequest(val email: String, val password: String)
 
-fun Route.userRoutes(userRepository: UserRepository) {
+fun Route.userRoutes(userRepository: UserRepository, badgeUnlockService: BadgeUnlockService
+) {
 
     route("/authUtils") {
         post("/register") {
@@ -128,7 +131,7 @@ fun Route.userRoutes(userRepository: UserRepository) {
                 }
             }
 
-            // 🔧 Nový endpoint pro onboarding: POST /users/me/goal
+
             post("/me/goal") {
                 val principal = call.principal<JWTPrincipal>()
                 val userId = principal?.getUserId()
@@ -155,11 +158,21 @@ fun Route.userRoutes(userRepository: UserRepository) {
                 val updated = user.copy(goal = goal)
                 val success = userRepository.updateUser(userId, updated, null)
 
-                if (success) {
-                    call.respond(HttpStatusCode.OK, mapOf("success" to true))
-                } else {
+                if (!success) {
                     call.respond(HttpStatusCode.InternalServerError, "Nepodařilo se uložit cíl")
+                    return@post
                 }
+
+
+                val newBadges = badgeUnlockService.checkAndUnlockBadgesForUser(userId)
+
+                call.respond(
+                    HttpStatusCode.OK,
+                    mapOf(
+                        "success" to true,
+                        "newBadges" to newBadges.map { it.toResponse() }
+                    )
+                )
             }
 
             patch("/me") {

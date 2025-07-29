@@ -1,5 +1,6 @@
 package routes
 
+import BadgeUnlockService
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
@@ -17,9 +18,9 @@ import java.util.*
 
 fun Route.reminderRoutes(
     reminderRepository: ReminderRepository,
-    WorkoutPlanRepository: WorkoutPlanRepository
+    workoutPlanRepository: WorkoutPlanRepository,
+    badgeUnlockService: BadgeUnlockService
 ) {
-
     authenticate("authUtils-jwt") {
         route("/reminders") {
 
@@ -28,12 +29,10 @@ fun Route.reminderRoutes(
                     ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
                 val reminders = reminderRepository.getRemindersByUser(userId)
-                val allPlans = WorkoutPlanRepository.getAllVisiblePlansForUser(userId)
+                val allPlans = workoutPlanRepository.getAllVisiblePlansForUser(userId)
 
-                // Mapa <UUID, Název plánu>
                 val planNameMap = allPlans.associateBy({ it.id }, { it.name })
 
-                // Převedeme každý Reminder na ReminderResponse i s názvem plánu
                 val response = reminders.map {
                     it.toResponse(planName = it.workoutPlanId?.let { id -> planNameMap[id] })
                 }
@@ -54,25 +53,25 @@ fun Route.reminderRoutes(
                         daysOfWeek = request.daysOfWeek,
                         workoutPlanId = request.workoutPlanId
                     )
+
                     reminderRepository.addReminder(reminder)
-                    call.respond(HttpStatusCode.Created, reminder.toResponse())
+
+                    // ✅ použij instanci
+                    val newlyUnlocked = badgeUnlockService.checkAndUnlockBadgesForUser(userId)
+
+                    call.respond(
+                        HttpStatusCode.Created,
+                        mapOf(
+                            "reminder" to reminder.toResponse(),
+                            "newBadges" to newlyUnlocked.map { it.toResponse() }
+                        )
+                    )
                 } catch (e: Exception) {
                     e.printStackTrace()
                     call.respond(HttpStatusCode.InternalServerError, "Chyba serveru při vytváření připomínky")
                 }
             }
 
-            delete("/{id}") {
-                val id = call.parameters["id"]?.let { UUID.fromString(it) }
-                    ?: return@delete call.respond(HttpStatusCode.BadRequest, "Neplatné ID")
-
-                val success = reminderRepository.deleteReminder(id)
-                if (success) {
-                    call.respond(HttpStatusCode.OK, "Připomínka smazána")
-                } else {
-                    call.respond(HttpStatusCode.NotFound, "Připomínka nenalezena")
-                }
-            }
             put("/{id}") {
                 val userId = call.principal<JWTPrincipal>()?.getUserId()
                     ?: return@put call.respond(HttpStatusCode.Unauthorized)
@@ -94,6 +93,18 @@ fun Route.reminderRoutes(
 
                 if (success) {
                     call.respond(HttpStatusCode.OK, "Připomínka upravena")
+                } else {
+                    call.respond(HttpStatusCode.NotFound, "Připomínka nenalezena")
+                }
+            }
+
+            delete("/{id}") {
+                val id = call.parameters["id"]?.let { UUID.fromString(it) }
+                    ?: return@delete call.respond(HttpStatusCode.BadRequest, "Neplatné ID")
+
+                val success = reminderRepository.deleteReminder(id)
+                if (success) {
+                    call.respond(HttpStatusCode.OK, "Připomínka smazána")
                 } else {
                     call.respond(HttpStatusCode.NotFound, "Připomínka nenalezena")
                 }

@@ -3,6 +3,7 @@ package routes
 import repository.WorkoutPlanRepository
 import authUtils.getUserId
 import authUtils.isOwnerOrAdmin
+import BadgeUnlockService
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
@@ -10,10 +11,13 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import requests.WorkoutPlanRequest
+import responses.toResponse
 import java.util.*
 
-
-fun Route.workoutPlanRoutes(workoutPlanRepository: WorkoutPlanRepository) {
+fun Route.workoutPlanRoutes(
+    workoutPlanRepository: WorkoutPlanRepository,
+    badgeUnlockService: BadgeUnlockService
+) {
     authenticate("authUtils-jwt") {
         route("/workout-plans") {
 
@@ -50,7 +54,17 @@ fun Route.workoutPlanRoutes(workoutPlanRepository: WorkoutPlanRepository) {
 
                 val newPlan = request.toModel(userId)
                 workoutPlanRepository.addWorkoutPlan(newPlan)
-                call.respond(HttpStatusCode.Created, "Workout plan created")
+
+                // ✅ Zkontrolujeme nové odznaky po vytvoření vlastního plánu
+                val newlyUnlocked = badgeUnlockService.checkAndUnlockBadgesForUser(userId)
+
+                call.respond(
+                    HttpStatusCode.Created,
+                    mapOf(
+                        "message" to "Workout plan created",
+                        "newBadges" to newlyUnlocked.map { it.toResponse() }
+                    )
+                )
             }
 
             put("/{id}") {
@@ -80,7 +94,6 @@ fun Route.workoutPlanRoutes(workoutPlanRepository: WorkoutPlanRepository) {
             }
 
             delete("/{id}") {
-
                 val id = call.parameters["id"]?.let { runCatching { UUID.fromString(it) }.getOrNull() }
                 val principal = call.principal<JWTPrincipal>()
 

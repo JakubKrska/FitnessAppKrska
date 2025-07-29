@@ -2,6 +2,7 @@ package routes
 
 import repository.WorkoutHistoryRepository
 import authUtils.getUserId
+import BadgeUnlockService
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
@@ -15,7 +16,8 @@ import java.util.*
 
 fun Route.workoutHistoryRoutes(
     workoutHistoryRepository: WorkoutHistoryRepository,
-    workoutPlanRepository: WorkoutPlanRepository
+    workoutPlanRepository: WorkoutPlanRepository,
+    badgeUnlockService: BadgeUnlockService
 ) {
     authenticate("authUtils-jwt") {
         route("/workout-history") {
@@ -72,7 +74,17 @@ fun Route.workoutHistoryRoutes(
 
                 val newEntry = request.toModel(userId)
                 workoutHistoryRepository.addWorkoutHistoryEntry(newEntry)
-                call.respond(HttpStatusCode.Created, "Workout history entry added")
+
+                // ✅ Zkontroluj odznaky po přidání workout history
+                val newlyUnlocked = badgeUnlockService.checkAndUnlockBadgesForUser(userId)
+
+                call.respond(
+                    HttpStatusCode.Created,
+                    mapOf(
+                        "message" to "Workout history entry added",
+                        "newBadges" to newlyUnlocked.map { it.toResponse() }
+                    )
+                )
             }
 
             delete("/{id}") {

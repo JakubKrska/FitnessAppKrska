@@ -48,16 +48,15 @@ fun Application.configureRouting() {
 
 
     routing {
-        userRoutes(userRepository)
+        userRoutes(userRepository, badgeUnlockService)
         exerciseRoutes(exerciseRepository)
-        workoutPlanRoutes(workoutPlanRepository)
-        workoutHistoryRoutes(workoutHistoryRepository, workoutPlanRepository)
+        workoutPlanRoutes(workoutPlanRepository, badgeUnlockService)
+        workoutHistoryRoutes(workoutHistoryRepository, workoutPlanRepository, badgeUnlockService)
         workoutExercisesRoutes(workoutExercisesRepository, workoutPlanRepository)
         workoutPerformanceRoutes(workoutPerformanceRepository, workoutHistoryRepository)
         exerciseCommentsRoutes(exerciseCommentsRepository)
-        favoriteExercisesRoutes(favoriteExercisesRepository)
         weightRoutes(WeightLogRepository())
-        reminderRoutes(reminderRepository, workoutPlanRepository)
+        reminderRoutes(reminderRepository, workoutPlanRepository, badgeUnlockService)
         badgeRoutes(badgeRepository, userBadgeRepository)
 
 
