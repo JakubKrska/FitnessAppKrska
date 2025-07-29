@@ -55,8 +55,12 @@ fun Route.workoutPlanRoutes(
                 val newPlan = request.toModel(userId)
                 workoutPlanRepository.addWorkoutPlan(newPlan)
 
-                // ✅ Zkontrolujeme nové odznaky po vytvoření vlastního plánu
-                val newlyUnlocked = badgeUnlockService.checkAndUnlockBadgesForUser(userId)
+                val newlyUnlocked = try {
+                    badgeUnlockService.checkAndUnlockBadgesForUser(userId)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    emptyList()
+                }
 
                 call.respond(
                     HttpStatusCode.Created,

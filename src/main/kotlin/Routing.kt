@@ -33,12 +33,12 @@ fun Application.configureRouting() {
     val badgeRepository = BadgeRepository()
     val userBadgeRepository = UserBadgeRepository()
     val badgeUnlockService = BadgeUnlockService(
-        badgeRepository = badgeRepository,
-        userBadgeRepository = userBadgeRepository,
-        workoutHistoryRepository = workoutHistoryRepository,
-        userRepository = userRepository,
-        workoutPlanRepository = workoutPlanRepository,
-        reminderRepository = reminderRepository
+        badgeRepository,
+        userBadgeRepository,
+        workoutHistoryRepository,
+        userRepository,
+        workoutPlanRepository,
+        reminderRepository
     )
     val planService = WorkoutPlanService(workoutPlanRepository)
 

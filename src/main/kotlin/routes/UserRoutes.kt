@@ -164,13 +164,18 @@ fun Route.userRoutes(userRepository: UserRepository, badgeUnlockService: BadgeUn
                 }
 
 
-                val newBadges = badgeUnlockService.checkAndUnlockBadgesForUser(userId)
+                val newlyUnlocked = try {
+                    badgeUnlockService.checkAndUnlockBadgesForUser(userId)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    emptyList()
+                }
 
                 call.respond(
                     HttpStatusCode.OK,
                     mapOf(
                         "success" to true,
-                        "newBadges" to newBadges.map { it.toResponse() }
+                        "newBadges" to newlyUnlocked.map { it.toResponse() }
                     )
                 )
             }
