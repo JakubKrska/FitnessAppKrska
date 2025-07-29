@@ -156,6 +156,7 @@ fun Application.configureRouting() {
                 call.respond(response)
             }
         }
+        authenticate("authUtils-jwt") {
         route("/users/me") {
             get("/badges") {
                 val principal = call.principal<JWTPrincipal>() ?: return@get call.respond(HttpStatusCode.Unauthorized)
@@ -178,6 +179,7 @@ fun Application.configureRouting() {
 
                 call.respond(response)
             }
+        }
             post("/badges/unlock") {
                 val principal = call.principal<JWTPrincipal>() ?: return@post call.respond(HttpStatusCode.Unauthorized)
                 val userId = principal.getUserId() ?: return@post call.respond(HttpStatusCode.BadRequest)
