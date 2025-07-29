@@ -9,12 +9,16 @@ import repository.ReminderRepository
 import authUtils.getUserId
 import io.ktor.http.*
 import models.Reminder
+import repository.WorkoutPlanRepository
 import requests.ReminderRequest
 import responses.toResponse
 import java.time.LocalTime
 import java.util.*
 
-fun Route.reminderRoutes(reminderRepository: ReminderRepository) {
+fun Route.reminderRoutes(
+    reminderRepository: ReminderRepository,
+    WorkoutPlanRepository: WorkoutPlanRepository
+) {
 
     authenticate("authUtils-jwt") {
         route("/reminders") {
@@ -24,7 +28,17 @@ fun Route.reminderRoutes(reminderRepository: ReminderRepository) {
                     ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
                 val reminders = reminderRepository.getRemindersByUser(userId)
-                call.respond(reminders.map { it.toResponse() })
+                val allPlans = WorkoutPlanRepository.getAllVisiblePlansForUser(userId)
+
+                // Mapa <UUID, Název plánu>
+                val planNameMap = allPlans.associateBy({ it.id }, { it.name })
+
+                // Převedeme každý Reminder na ReminderResponse i s názvem plánu
+                val response = reminders.map {
+                    it.toResponse(planName = it.workoutPlanId?.let { id -> planNameMap[id] })
+                }
+
+                call.respond(response)
             }
 
             post {

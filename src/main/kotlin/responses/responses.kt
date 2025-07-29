@@ -201,18 +201,18 @@ fun Badge.toResponse() = BadgeResponse(
 @Serializable
 data class ReminderResponse(
     @Contextual val id: UUID,
-    @Contextual val userId: UUID,
     val time: String,
     val daysOfWeek: List<String>,
-    @Contextual val workoutPlanId: UUID?
+    @Contextual val workoutPlanId: UUID? = null,
+    val workoutPlanName: String? = null
 )
 
-fun Reminder.toResponse() = ReminderResponse(
+fun Reminder.toResponse(planName: String? = null) = ReminderResponse(
     id = id,
-    userId = userId,
-    time = time.toString(), // převedeme LocalTime na HH:mm:ss
+    time = time.toString(),
     daysOfWeek = daysOfWeek,
-    workoutPlanId = workoutPlanId
+    workoutPlanId = workoutPlanId,
+    workoutPlanName = planName
 )
 
 
