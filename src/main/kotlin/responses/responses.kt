@@ -107,12 +107,14 @@ fun WorkoutExercise.toResponse() = WorkoutExerciseResponse(
 data class WorkoutHistoryResponse(
     @Contextual val id: UUID,
     val completedAt: String,
+    @Contextual val workoutPlanId: UUID?,
     val workoutPlanName: String? = null
 )
 
 fun WorkoutHistoryEntry.toResponse(planName: String?) = WorkoutHistoryResponse(
     id = id,
     completedAt = completedAt.toIsoString(),
+    workoutPlanId = workoutPlanId,
     workoutPlanName = planName
 )
 
