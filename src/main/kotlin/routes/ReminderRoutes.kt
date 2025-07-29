@@ -10,6 +10,7 @@ import authUtils.getUserId
 import io.ktor.http.*
 import models.Reminder
 import requests.ReminderRequest
+import responses.toResponse
 import java.time.LocalTime
 import java.util.*
 
@@ -23,24 +24,28 @@ fun Route.reminderRoutes(reminderRepository: ReminderRepository) {
                     ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
                 val reminders = reminderRepository.getRemindersByUser(userId)
-                call.respond(reminders)
+                call.respond(reminders.map { it.toResponse() })
             }
 
             post {
                 val userId = call.principal<JWTPrincipal>()?.getUserId()
                     ?: return@post call.respond(HttpStatusCode.Unauthorized)
 
-                val request = call.receive<ReminderRequest>()
-
-                val reminder = Reminder(
-                    id = UUID.randomUUID(),
-                    userId = userId,
-                    time = LocalTime.parse(request.time),
-                    daysOfWeek = request.daysOfWeek,
-                    workoutPlanId = request.workoutPlanId
-                )
-                reminderRepository.addReminder(reminder)
-                call.respond(HttpStatusCode.Created, reminder)
+                try {
+                    val request = call.receive<ReminderRequest>()
+                    val reminder = Reminder(
+                        id = UUID.randomUUID(),
+                        userId = userId,
+                        time = LocalTime.parse(request.time),
+                        daysOfWeek = request.daysOfWeek,
+                        workoutPlanId = request.workoutPlanId
+                    )
+                    reminderRepository.addReminder(reminder)
+                    call.respond(HttpStatusCode.Created, reminder.toResponse())
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    call.respond(HttpStatusCode.InternalServerError, "Chyba serveru při vytváření připomínky")
+                }
             }
 
             delete("/{id}") {

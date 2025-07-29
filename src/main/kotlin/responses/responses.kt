@@ -198,5 +198,21 @@ fun Badge.toResponse() = BadgeResponse(
     conditionValue = conditionValue,
     createdAt = createdAt
 )
+@Serializable
+data class ReminderResponse(
+    @Contextual val id: UUID,
+    @Contextual val userId: UUID,
+    val time: String,
+    val daysOfWeek: List<String>,
+    @Contextual val workoutPlanId: UUID?
+)
+
+fun Reminder.toResponse() = ReminderResponse(
+    id = id,
+    userId = userId,
+    time = time.toString(), // převedeme LocalTime na HH:mm:ss
+    daysOfWeek = daysOfWeek,
+    workoutPlanId = workoutPlanId
+)
 
 
