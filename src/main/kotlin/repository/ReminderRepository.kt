@@ -15,7 +15,7 @@ class ReminderRepository {
             it[id] = reminder.id
             it[userId] = reminder.userId
             it[time] = reminder.time
-            it[daysOfWeek] = reminder.daysOfWeek.joinToString(",") // ← Ulož jako CSV string
+            it[daysOfWeek] = reminder.daysOfWeek.joinToString(",")
             it[workoutPlanId] = reminder.workoutPlanId
         }
     }
@@ -23,7 +23,7 @@ class ReminderRepository {
     fun getRemindersByUser(userId: UUID): List<Reminder> = transaction {
         Reminders.select { Reminders.userId eq userId }
             .map { row ->
-                val days = row[Reminders.daysOfWeek].split(",") // ← Převod zpět na list
+                val days = row[Reminders.daysOfWeek].split(",")
                 Reminder(
                     id = row[Reminders.id],
                     userId = row[Reminders.userId],
@@ -49,5 +49,12 @@ class ReminderRepository {
                     workoutPlanId = it[Reminders.workoutPlanId]
                 )
             }
+    }
+    fun updateReminder(reminder: Reminder): Boolean = transaction {
+        Reminders.update({ Reminders.id eq reminder.id }) {
+            it[time] = reminder.time
+            it[daysOfWeek] = reminder.daysOfWeek.joinToString(",")
+            it[workoutPlanId] = reminder.workoutPlanId
+        } > 0
     }
 }

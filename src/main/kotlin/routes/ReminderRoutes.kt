@@ -54,6 +54,31 @@ fun Route.reminderRoutes(reminderRepository: ReminderRepository) {
                     call.respond(HttpStatusCode.NotFound, "Připomínka nenalezena")
                 }
             }
+            put("/{id}") {
+                val userId = call.principal<JWTPrincipal>()?.getUserId()
+                    ?: return@put call.respond(HttpStatusCode.Unauthorized)
+
+                val id = call.parameters["id"]?.let { UUID.fromString(it) }
+                    ?: return@put call.respond(HttpStatusCode.BadRequest, "Neplatné ID")
+
+                val request = call.receive<ReminderRequest>()
+
+                val updated = Reminder(
+                    id = id,
+                    userId = userId,
+                    time = LocalTime.parse(request.time),
+                    daysOfWeek = request.daysOfWeek,
+                    workoutPlanId = request.workoutPlanId
+                )
+
+                val success = reminderRepository.updateReminder(updated)
+
+                if (success) {
+                    call.respond(HttpStatusCode.OK, "Připomínka upravena")
+                } else {
+                    call.respond(HttpStatusCode.NotFound, "Připomínka nenalezena")
+                }
+            }
         }
     }
 }

@@ -6,7 +6,7 @@ import java.util.*
 
 @Serializable
 data class ReminderRequest(
-    val time: String, // expected format: "HH:mm"
+    val time: String,
     val daysOfWeek: List<String>,
     @Contextual val workoutPlanId: UUID? = null
 )
