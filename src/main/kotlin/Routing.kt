@@ -159,25 +159,30 @@ fun Application.configureRouting() {
         authenticate("authUtils-jwt") {
         route("/users/me") {
             get("/badges") {
-                val principal = call.principal<JWTPrincipal>() ?: return@get call.respond(HttpStatusCode.Unauthorized)
-                val userId = principal.getUserId() ?: return@get call.respond(HttpStatusCode.BadRequest)
+                try {
+                    val principal = call.principal<JWTPrincipal>() ?: return@get call.respond(HttpStatusCode.Unauthorized)
+                    val userId = principal.getUserId() ?: return@get call.respond(HttpStatusCode.BadRequest)
 
-                val userBadges = userBadgeRepository.getBadgesForUser(userId)
-                val allBadges = badgeRepository.getAllBadges().associateBy { it.id }
+                    val userBadges = userBadgeRepository.getBadgesForUser(userId)
+                    val allBadges = badgeRepository.getAllBadges().associateBy { it.id }
 
-                val response = userBadges.mapNotNull { ub ->
-                    allBadges[ub.badgeId]?.let { badge ->
-                        mapOf(
-                            "id" to badge.id,
-                            "name" to badge.name,
-                            "description" to badge.description,
-                            "icon" to badge.icon,
-                            "unlockedAt" to ub.unlockedAt
-                        )
+                    val response = userBadges.mapNotNull { ub ->
+                        allBadges[ub.badgeId]?.let { badge ->
+                            mapOf(
+                                "id" to badge.id,
+                                "name" to badge.name,
+                                "description" to badge.description,
+                                "icon" to badge.icon,
+                                "unlockedAt" to ub.unlockedAt
+                            )
+                        }
                     }
-                }
 
-                call.respond(response)
+                    call.respond(response)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    call.respond(HttpStatusCode.InternalServerError, "Chyba při získávání odznaků: ${e.message}")
+                }
             }
         }
             post("/badges/unlock") {

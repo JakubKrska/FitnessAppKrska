@@ -26,27 +26,27 @@ fun Route.badgeRoutes(
                 call.respond(badgeRepository.getAllBadges())
             }
 
-            get("/me") {
-                val principal = call.principal<JWTPrincipal>() ?: return@get call.respond(HttpStatusCode.Unauthorized)
-                val userId = principal.getUserId() ?: return@get call.respond(HttpStatusCode.BadRequest)
-
-                val userBadges = userBadgeRepository.getBadgesForUser(userId)
-                val allBadges = badgeRepository.getAllBadges().associateBy { it.id }
-
-                val response = userBadges.mapNotNull { ub ->
-                    allBadges[ub.badgeId]?.let { badge ->
-                        BadgeWithUnlock(
-                            id = badge.id,
-                            name = badge.name,
-                            description = badge.description,
-                            icon = badge.icon,
-                            unlockedAt = ub.unlockedAt.toString()
-                        )
-                    }
-                }
-
-                call.respond(response)
-            }
+//            get("/me") {
+//                val principal = call.principal<JWTPrincipal>() ?: return@get call.respond(HttpStatusCode.Unauthorized)
+//                val userId = principal.getUserId() ?: return@get call.respond(HttpStatusCode.BadRequest)
+//
+//                val userBadges = userBadgeRepository.getBadgesForUser(userId)
+//                val allBadges = badgeRepository.getAllBadges().associateBy { it.id }
+//
+//                val response = userBadges.mapNotNull { ub ->
+//                    allBadges[ub.badgeId]?.let { badge ->
+//                        BadgeWithUnlock(
+//                            id = badge.id,
+//                            name = badge.name,
+//                            description = badge.description
+//                            icon = badge.icon,
+//                            unlockedAt = ub.unlockedAt.toString()
+//                        )
+//                    }
+//                }
+//
+//                call.respond(response)
+//            }
 
             post("/unlock") {
                 val principal = call.principal<JWTPrincipal>() ?: return@post call.respond(HttpStatusCode.Unauthorized)
