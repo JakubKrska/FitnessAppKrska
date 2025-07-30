@@ -55,6 +55,7 @@ fun Application.configureRouting() {
         weightRoutes(WeightLogRepository())
         reminderRoutes(reminderRepository, workoutPlanRepository, badgeUnlockService)
         badgeRoutes(badgeRepository, userBadgeRepository)
+        favoriteExercisesRoutes(favoriteExercisesRepository)
 
 
         authenticate("authUtils-jwt") {
