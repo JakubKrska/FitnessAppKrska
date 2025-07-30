@@ -214,5 +214,23 @@ fun Reminder.toResponse(planName: String? = null) = ReminderResponse(
     workoutPlanId = workoutPlanId,
     workoutPlanName = planName
 )
+@Serializable
+data class BadgeWithUnlock(
+    @Contextual val id: UUID,
+    val name: String,
+    val description: String?,
+    val icon: String?,
+    val unlockedAt: String
+)
+
+fun Badge.toResponse(unlockedAt: Instant): BadgeWithUnlock {
+    return BadgeWithUnlock(
+        id = this.id,
+        name = this.name,
+        description = this.description,
+        icon = this.icon,
+        unlockedAt = unlockedAt.toString()
+    )
+}
 
 

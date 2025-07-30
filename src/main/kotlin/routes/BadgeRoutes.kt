@@ -81,11 +81,3 @@ fun Route.badgeRoutes(
     }
 }
 
-@Serializable
-data class BadgeWithUnlock(
-    @Contextual val id: UUID,
-    val name: String,
-    val description: String?,
-    val icon: String?,
-    val unlockedAt: String
-)

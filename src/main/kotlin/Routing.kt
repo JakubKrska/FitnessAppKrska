@@ -15,6 +15,7 @@ import repository.*
 import requests.ChangePasswordRequest
 import requests.GoalUpdateRequest
 import requests.UpdateWeightRequest
+import responses.BadgeWithUnlock
 import responses.toResponse
 import services.WorkoutPlanService
 import java.util.UUID
@@ -166,14 +167,15 @@ fun Application.configureRouting() {
                     val userBadges = userBadgeRepository.getBadgesForUser(userId)
                     val allBadges = badgeRepository.getAllBadges().associateBy { it.id }
 
+
                     val response = userBadges.mapNotNull { ub ->
                         allBadges[ub.badgeId]?.let { badge ->
-                            mapOf(
-                                "id" to badge.id,
-                                "name" to badge.name,
-                                "description" to badge.description,
-                                "icon" to badge.icon,
-                                "unlockedAt" to ub.unlockedAt
+                            BadgeWithUnlock(
+                                id = badge.id,
+                                name = badge.name,
+                                description = badge.description,
+                                icon = badge.icon,
+                                unlockedAt = ub.unlockedAt.toString()
                             )
                         }
                     }
