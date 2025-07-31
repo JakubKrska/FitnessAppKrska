@@ -10,6 +10,7 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import models.WorkoutPlanCreatedResponse
 import requests.WorkoutPlanRequest
 import responses.toResponse
 import java.util.*
@@ -64,9 +65,9 @@ fun Route.workoutPlanRoutes(
 
                     call.respond(
                         HttpStatusCode.Created,
-                        mapOf(
-                            "message" to "Workout plan created",
-                            "newBadges" to newlyUnlocked.map { it.toResponse() }
+                        WorkoutPlanCreatedResponse(
+                            message = "Workout plan created",
+                            newBadges = newlyUnlocked.map { it.toResponse() }
                         )
                     )
                 } catch (e: Exception) {
