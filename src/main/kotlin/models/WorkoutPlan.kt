@@ -16,6 +16,7 @@ data class WorkoutPlan(
     val isDefault: Boolean = false
 )
 
+@Serializable
 data class WorkoutPlanCreatedResponse(
     val message: String,
     val newBadges: List<BadgeResponse>
