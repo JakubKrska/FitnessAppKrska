@@ -42,33 +42,37 @@ fun Route.workoutPlanRoutes(
             }
 
             post {
-                val userId = call.principal<JWTPrincipal>()?.getUserId()
-                if (userId == null) {
-                    call.respond(HttpStatusCode.Unauthorized)
-                    return@post
-                }
+                try {
+                    val userId = call.principal<JWTPrincipal>()?.getUserId()
+                        ?: return@post call.respond(HttpStatusCode.Unauthorized)
 
-                val request = call.receive<WorkoutPlanRequest>()
-                val errors = request.validate()
-                if (errors.isNotEmpty()) return@post call.respond(HttpStatusCode.BadRequest, errors)
+                    val request = call.receive<WorkoutPlanRequest>()
+                    println("📥 Přišel request: $request")
 
-                val newPlan = request.toModel(userId)
-                workoutPlanRepository.addWorkoutPlan(newPlan)
+                    val errors = request.validate()
+                    if (errors.isNotEmpty()) {
+                        println("❌ Validační chyby: $errors")
+                        return@post call.respond(HttpStatusCode.BadRequest, errors)
+                    }
 
-                val newlyUnlocked = try {
-                    badgeUnlockService.checkAndUnlockBadgesForUser(userId)
+                    val newPlan = request.toModel(userId)
+                    println("🛠 Vytvářím plán: $newPlan")
+
+                    workoutPlanRepository.addWorkoutPlan(newPlan)
+
+                    val newlyUnlocked = badgeUnlockService.checkAndUnlockBadgesForUser(userId)
+
+                    call.respond(
+                        HttpStatusCode.Created,
+                        mapOf(
+                            "message" to "Workout plan created",
+                            "newBadges" to newlyUnlocked.map { it.toResponse() }
+                        )
+                    )
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    emptyList()
+                    call.respond(HttpStatusCode.InternalServerError, "Chyba na serveru: ${e.message}")
                 }
-
-                call.respond(
-                    HttpStatusCode.Created,
-                    mapOf(
-                        "message" to "Workout plan created",
-                        "newBadges" to newlyUnlocked.map { it.toResponse() }
-                    )
-                )
             }
 
             put("/{id}") {

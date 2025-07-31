@@ -38,10 +38,12 @@ class WorkoutPlanRepository {
     }
 
     fun addWorkoutPlan(plan: WorkoutPlan) = transaction {
+        println("📦 Ukládám plán do DB: $plan")
+
         if (!plan.isDefault && plan.userId == null) {
-            error("Plán uživatele musí obsahovat userId!")
+            error("❌ Nezadaný userId pro nevýchozí plán")
         }
-        println("➡️ Ukládám plán: $plan")
+
         WorkoutPlans.insert {
             it[id] = plan.id
             it[userId] = plan.userId
