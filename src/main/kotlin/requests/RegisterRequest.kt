@@ -10,9 +10,9 @@ data class RegisterRequest(
 ) {
     fun validate(): List<String> {
         val errors = mutableListOf<String>()
-        if (name.isBlank()) errors.add("Name is required")
-        if (!email.contains("@")) errors.add("Invalid email format")
-        if (password.length < 6) errors.add("Password must be at least 6 characters")
+        if (name.isBlank()) errors.add("Jméno je vyžadováno!")
+        if (!email.contains("@")) errors.add("Neplatný formát email adresy!")
+        if (password.length < 6) errors.add("Heslo musí být dlouhé alespoň 6 znaků!")
         return errors
     }
 
